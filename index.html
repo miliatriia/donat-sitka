@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>Донат-сітка</title>
+<title>Інтерактиви для волонтерів</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Montserrat:wght@700;800;900&family=Unbounded:wght@500;700;800&display=swap">
 <style>
 /* Layout: sticky 9:16 story preview on the left, one scrolling column of controls on the right; stacks on phones. */
@@ -23,10 +23,11 @@
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
 .wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:28px 56px}
-header{display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+header{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
 h1{font-family:var(--display);font-weight:800;font-size:clamp(24px,4vw,34px);margin:0;letter-spacing:-.01em;text-wrap:balance}
 h1 span{background:var(--sun);color:var(--sun-fg);padding:0 .25em}
 header p{margin:0;color:var(--muted);max-width:60ch}
+.tabs{max-width:780px;flex-wrap:wrap;font-family:var(--display);font-size:13px}
 .cols{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:start}
 .stage{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:12px}
 canvas{width:100%;max-width:100%;aspect-ratio:9/16;display:block;border-radius:14px;cursor:pointer;background:var(--panel)}
@@ -34,7 +35,7 @@ canvas{width:100%;max-width:100%;aspect-ratio:9/16;display:block;border-radius:1
 .stats b{font-family:var(--display);font-size:20px}
 .stats small{display:block;color:var(--muted)}
 .hint{color:var(--muted);font-size:13px;margin:0}
-.panel{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel,.stack{display:flex;flex-direction:column;gap:14px;min-width:0}
 section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
 h2{font-family:var(--display);font-weight:700;font-size:14px;margin:0;text-transform:uppercase;letter-spacing:.06em}
 h3{font-size:13px;font-weight:700;color:var(--muted);margin:0}
@@ -51,9 +52,9 @@ button.warn{color:var(--danger)}
 button:disabled{opacity:.5;cursor:default}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .check{display:flex;gap:9px;align-items:center;font-weight:600}
-.check input{width:18px;height:18px;accent-color:var(--accent)}
+.check input{width:18px;height:18px;accent-color:var(--accent);flex:none}
 .seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
-.seg label{flex:1;text-align:center;padding:9px 10px;cursor:pointer;font-weight:600;background:var(--bg)}
+.seg label{flex:1;text-align:center;padding:9px 8px;cursor:pointer;font-weight:600;background:var(--bg)}
 .seg input{position:absolute;opacity:0}
 .seg input:checked+span{color:var(--accent)}
 .seg label:has(input:checked){background:var(--panel);box-shadow:inset 0 -3px 0 var(--accent)}
@@ -63,6 +64,11 @@ button:disabled{opacity:.5;cursor:default}
 .last b{font-family:var(--display);font-weight:500}
 .over{border-color:var(--accent)!important;border-style:dashed!important}
 .slot{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.tabs label{flex:1 1 140px}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.pal button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;font-size:12px;line-height:1.2}
+.pal button.on{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+.pal canvas{width:44px;height:44px;aspect-ratio:auto;border-radius:8px;background:none}
 #fallback img{width:160px;border-radius:8px;border:1px solid var(--line)}
 @media (max-width:760px){ .cols{grid-template-columns:minmax(0,1fr)} .stage{position:static;max-width:300px;margin:0 auto;width:100%} }
 </style>
@@ -73,22 +79,26 @@ button:disabled{opacity:.5;cursor:default}
 
 <div class="wrap">
   <header>
-    <h1>Донат-<span>сітка</span></h1>
-    <p>Закрийте ілюстрацію клітинками й відкривайте їх за донати. Усе працює у вашому браузері: зображення нікуди не надсилаються.</p>
+    <h1>Інтерактиви для <span>волонтерів</span></h1>
+    <p>«Волонтери Північ» розробили 2 гри для сторіз: відкривайте клітинки прихованої картинки або запалюйте зірки сузір'я. Усе працює у вашому браузері: зображення нікуди не надсилаються.</p>
+    <div class="seg tabs">
+      <label><input type="radio" name="game" value="grid" checked><span>Донат-сітка</span></label>
+      <label><input type="radio" name="game" value="stars"><span>Відкрий зірку</span></label>
+    </div>
   </header>
 
   <div class="cols">
     <div class="stage">
       <canvas id="cv" width="1080" height="1920" aria-label="Попередній перегляд сторіз"></canvas>
       <div class="stats">
-        <div><b id="stOpen">0 / 60</b><small>клітинок відкрито</small></div>
+        <div><b id="stOpen">0 / 60</b><small id="stL">клітинок відкрито</small></div>
         <div><b id="stSum">0 грн</b><small>зібрано щонайменше</small></div>
       </div>
-      <p class="hint">Натисніть на клітинку в сторіз, щоб відкрити або закрити її вручну.</p>
+      <p class="hint" id="hint"></p>
     </div>
 
     <div class="panel">
-      <section id="dropImg">
+      <section id="dropImg" class="g-grid">
         <h2>Приховане зображення</h2>
         <div class="row">
           <label class="filebtn">Обрати файл<input type="file" id="fileImg" accept="image/*" hidden></label>
@@ -102,7 +112,7 @@ button:disabled{opacity:.5;cursor:default}
         </label>
       </section>
 
-      <section>
+      <section class="g-grid">
         <h2>Сітка</h2>
         <div class="row">
           <label class="field"><span>Стовпців (букви)</span><input type="number" id="cols" min="2" max="15" value="6"></label>
@@ -116,8 +126,141 @@ button:disabled{opacity:.5;cursor:default}
         </label>
       </section>
 
-      <section>
-        <h2>Відкрити клітинки</h2>
+      <section class="g-stars">
+        <h2>Сузір'я</h2>
+        <div class="seg">
+          <label><input type="radio" name="smode" value="real" checked><span>Справжнє сузір'я</span></label>
+          <label><input type="radio" name="smode" value="own"><span>Своє сузір'я</span></label>
+        </div>
+        <div class="m-real stack">
+          <label class="field"><span>Яке сузір'я</span><select id="con"></select></label>
+          <label class="check"><input type="checkbox" id="showName"> Показувати назву одразу</label>
+          <p class="note">Без галочки назва з'явиться, коли запалено всі зірки, тож підписники можуть вгадувати. Лінії з'являються самі між сусідніми запаленими зірками. Прогрес кожного сузір'я запам'ятовується окремо.</p>
+        </div>
+        <div class="m-own stack">
+          <div class="row">
+            <label class="field" style="flex:0 1 140px"><span>Скільки зірок</span><input type="number" id="n" min="5" max="80" value="30"></label>
+            <button id="regen">Розкидати зірки заново</button>
+          </div>
+          <div class="field"><span>Що робить натискання на зірку</span>
+            <div class="seg">
+              <label><input type="radio" name="tool" value="light" checked><span>Запалити</span></label>
+              <label><input type="radio" name="tool" value="link"><span>З'єднати</span></label>
+              <label><input type="radio" name="tool" value="move"><span>Пересунути</span></label>
+            </div>
+          </div>
+          <div class="row">
+            <button id="unline">Прибрати останню лінію</button>
+            <button id="nolines" class="warn">Прибрати всі лінії</button>
+          </div>
+          <label class="field"><span>Підпис під сузір'ям</span><input type="text" id="caption" maxlength="60" placeholder="Наприклад: Сузір'я Донатера або Схоже на кита"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="nums"> Номери біля зірок</label>
+      </section>
+
+      <section class="g-city" id="dropCity">
+        <h2>Місто</h2>
+        <div class="seg">
+          <label><input type="radio" name="src" value="auto" checked><span>Готове місто</span></label>
+          <label><input type="radio" name="src" value="img"><span>Своя ілюстрація</span></label>
+        </div>
+        <div class="c-own stack">
+          <div class="row">
+            <label class="filebtn">Обрати ілюстрацію міста<input type="file" id="fileCity" accept="image/*" hidden></label>
+            <p class="note" id="cityNote" style="flex:1 1 180px">Завантажте свою ілюстрацію нічного міста або перетягніть її сюди.</p>
+          </div>
+        </div>
+        <div class="row">
+          <label class="field" style="flex:0 1 140px"><span>Скільки вікон</span><input type="number" id="wn" min="5" max="300" value="60"></label>
+          <button id="newcity" class="c-auto">Намалювати інше місто</button>
+          <button id="autoWin" class="c-own">Розставити вікна автоматично</button>
+        </div>
+        <div class="c-auto stack">
+          <div class="field"><span>Що робить натискання на місто</span>
+            <div class="seg">
+              <label><input type="radio" name="ctoolA" value="light" checked><span>Засвітити вікно</span></label>
+              <label><input type="radio" name="ctoolA" value="bld"><span>Засвітити весь будинок</span></label>
+            </div>
+          </div>
+          <div class="row">
+            <label class="field" style="flex:0 1 190px"><span>Донат за цілий будинок, грн</span><input type="number" id="bprice" min="1" value="200"></label>
+            <button id="nextB">Засвітити цілий будинок</button>
+          </div>
+          <p class="note">Кнопка засвічує наступний будинок: по черзі зліва направо або довільний, залежно від порядку нижче. Вікна розставляються автоматично.</p>
+        </div>
+        <div class="c-own stack">
+          <div class="field"><span>Що робить натискання на ілюстрацію</span>
+            <div class="seg">
+              <label><input type="radio" name="ctoolO" value="light" checked><span>Засвітити</span></label>
+              <label><input type="radio" name="ctoolO" value="edit"><span>Додати / прибрати вікно</span></label>
+              <label><input type="radio" name="ctoolO" value="move"><span>Пересунути</span></label>
+            </div>
+          </div>
+          <label class="field" style="flex:0 1 160px"><span>Розмір вікна</span><input type="number" id="wsize" min="8" max="60" value="22"></label>
+          <label class="check"><input type="checkbox" id="showOff" checked> Показувати на сторіз ще не засвічені вікна</label>
+          <p class="note">Автоматична розстановка ставить вікна на темніші ділянки ілюстрації. Це приблизно, тож зайві вікна можна прибрати, а потрібні додати чи пересунути вручну. Засвічування цілого будинку працює лише в готовому місті.</p>
+        </div>
+      </section>
+
+      <section class="g-build">
+        <h2>Карта</h2>
+        <div class="row">
+          <label class="field" style="flex:2 1 180px"><span>Шаблон карти</span><select id="tpl"></select></label>
+          <button id="regenMap">Згенерувати іншу карту</button>
+        </div>
+        <div class="row">
+          <label class="field"><span>Клітинок у ширину</span><input type="number" id="bcols" min="5" max="20" value="9"></label>
+          <label class="field"><span>Клітинок у висоту</span><input type="number" id="brows" min="5" max="26" value="12"></label>
+          <label class="field"><span>Розмір клітинки</span><input type="number" id="cell" min="30" max="120" value="90"></label>
+        </div>
+        <p class="note">Якщо карта не вміщається в кадр, клітинки зменшуються автоматично. Після зміни розміру чи шаблону лишаються ті об'єкти, для яких на новій карті є місце.</p>
+        <label class="field"><span>Назва карти</span><input type="text" id="mapName" maxlength="40"></label>
+        <label class="field"><span>Формат зображення</span>
+          <select id="fmt"><option value="story">Сторіз 9:16 (1080 × 1920)</option><option value="post">Допис 4:5 (1080 × 1350)</option><option value="square">Квадрат 1:1 (1080 × 1080)</option></select>
+        </label>
+      </section>
+
+      <section class="g-build">
+        <h2>Об'єкти</h2>
+        <div class="pal" id="pal"></div>
+        <div class="field"><span>Що робить натискання на карту</span>
+          <div class="seg">
+            <label><input type="radio" name="btool" value="place" checked><span>Поставити</span></label>
+            <label><input type="radio" name="btool" value="move"><span>Пересунути</span></label>
+            <label><input type="radio" name="btool" value="del"><span>Видалити</span></label>
+          </div>
+        </div>
+        <div class="row">
+          <label class="field" style="flex:0 1 100px"><span>Скільки</span><input type="number" id="bcount" min="1" max="50" value="3"></label>
+          <label class="field" style="flex:2 1 170px"><span>Що додавати</span><select id="brand"><option value="sel">Обраний об'єкт</option><option value="any">Різні об'єкти</option></select></label>
+          <button class="primary" id="bAdd">Розмістити випадково</button>
+        </div>
+        <p class="last" id="bLast">На карті ще немає об'єктів.</p>
+        <div class="row">
+          <button id="bUndo">Скасувати останню дію</button>
+          <button id="bClear" class="warn">Очистити карту</button>
+        </div>
+      </section>
+
+      <section class="g-build">
+        <h2>Прогрес збору</h2>
+        <label class="check"><input type="checkbox" id="finOn"> Показувати фінансовий прогрес на зображенні</label>
+        <div class="row">
+          <label class="field"><span>Ціль збору, грн</span><input type="number" id="goal" min="1" value="50000"></label>
+          <label class="field"><span>Уже зібрано, грн</span><input type="number" id="raised" min="0" value="0"></label>
+        </div>
+        <div class="slot">
+          <h3>Файл проєкту</h3>
+          <div class="row">
+            <button id="projSave">Зберегти проєкт у файл</button>
+            <label class="filebtn">Відкрити проєкт<input type="file" id="projLoad" accept=".json,application/json" hidden></label>
+          </div>
+          <p class="note" id="projNote">Прогрес і так зберігається в цьому браузері автоматично. Файл проєкту потрібен, щоб продовжити на іншому пристрої або мати запасну копію.</p>
+        </div>
+      </section>
+
+      <section class="not-build">
+        <h2 id="openH">Відкрити клітинки</h2>
         <div class="row">
           <label class="field" style="flex:0 1 110px"><span>Скільки</span><input type="number" id="count" min="1" max="375" value="1"></label>
           <div class="field" style="flex:2 1 220px"><span>Порядок</span>
@@ -128,23 +271,28 @@ button:disabled{opacity:.5;cursor:default}
           </div>
           <button class="primary" id="open">Відкрити</button>
         </div>
-        <p class="last" id="last">Ще нічого не відкрито.</p>
+        <p class="last" id="last"></p>
         <div class="row">
           <button id="undo">Скасувати останнє</button>
           <button id="reset" class="warn">Закрити всі</button>
-          <label class="field" style="flex:0 1 150px"><span>Донат за клітинку, грн</span><input type="number" id="price" min="1" value="10"></label>
+          <label class="field" style="flex:0 1 150px"><span id="priceL">Донат за клітинку, грн</span><input type="number" id="price" min="1" value="10"></label>
         </div>
       </section>
 
       <section>
         <h2>Оформлення сторіз</h2>
-        <label class="field"><span>Заголовок</span><input type="text" id="title" value="ВІДКРИЙ ЗОБРАЖЕННЯ!" maxlength="60"></label>
-        <label class="field"><span>Текст на плашці (плашка підлаштовується під довжину)</span><input type="text" id="sub" value="ДОНАТ ВІД 10 ГРН = 1 КЛІТИНКА" maxlength="80"></label>
-        <label class="check"><input type="checkbox" id="counter" checked> Показувати лічильник «Відкрито 12 з 60»</label>
+        <label class="field"><span>Заголовок</span><input type="text" id="title" maxlength="60"></label>
+        <label class="field"><span>Текст на плашці (плашка підлаштовується під довжину)</span><input type="text" id="sub" maxlength="80"></label>
+        <label class="field"><span>Додатковий текст або посилання внизу сторіз (необов'язково)</span><input type="text" id="extra" maxlength="80" placeholder="Наприклад: Посилання на банку в шапці профілю"></label>
+        <label class="check"><input type="checkbox" id="counter" checked> Показувати лічильник на сторіз</label>
         <div class="row">
           <label class="field"><span>Колір тексту</span><input type="color" id="textc" value="#ffffff"></label>
           <label class="field"><span>Колір плашки</span><input type="color" id="badge" value="#246b48"></label>
-          <label class="field"><span>Колір клітинок</span><input type="color" id="cover" value="#d6d4cf"></label>
+          <label class="field g-grid"><span>Колір клітинок</span><input type="color" id="cover" value="#d6d4cf"></label>
+          <label class="field g-stars"><span>Колір зірок</span><input type="color" id="starc" value="#ffe98a"></label>
+          <label class="field g-stars"><span>Колір ліній</span><input type="color" id="linec" value="#ffffff"></label>
+          <label class="field g-city"><span>Колір світла у вікнах</span><input type="color" id="winc" value="#ffd76a"></label>
+          <label class="field g-city c-auto"><span>Колір будинків</span><input type="color" id="bldc" value="#1a2b1e"></label>
         </div>
 
         <div class="slot" id="dropBg">
@@ -154,9 +302,8 @@ button:disabled{opacity:.5;cursor:default}
             <label class="filebtn">Обрати фонове зображення<input type="file" id="fileBg" accept="image/*" hidden></label>
             <button id="clearBg" hidden>Прибрати</button>
           </div>
-          <p class="note" id="bgNote">Без зображення тло буде суцільним кольором. Зображення розтягується на весь кадр 9:16.</p>
+          <p class="note" id="bgNote"></p>
         </div>
-
         <p class="note">Логотип «Волонтери Північ» завжди внизу посередині. Він автоматично стає білим на темному тлі й чорним на світлому.</p>
       </section>
 
@@ -164,6 +311,18 @@ button:disabled{opacity:.5;cursor:default}
         <h2>Завантажити</h2>
         <button class="sun" id="save">Зберегти PNG 1080 × 1920</button>
         <p class="note" id="saveNote">Формат 9:16 для сторіз в Instagram.</p>
+        <div class="slot g-stars">
+          <h3>Анімоване відео із зірками</h3>
+          <label class="check"><input type="checkbox" id="fxTw"> Зірки мерехтять</label>
+          <label class="check"><input type="checkbox" id="fxCol"> Зірки переливаються кольорами</label>
+          <label class="check"><input type="checkbox" id="fxShoot"> Падаючі зірки на тлі</label>
+          <div class="row">
+            <button id="play">Переглянути анімацію</button>
+            <button class="primary" id="rec">Зберегти відео (6 с)</button>
+          </div>
+          <p class="note" id="recNote">Відео записується 6 секунд просто на сторінці: не перемикайте вкладку, доки запис не завершиться. Instagram не програє GIF у сторіз, тому анімація зберігається як відео.</p>
+          <p class="note" id="vidLinkP" hidden><a id="vidLink">Завантажити відео</a></p>
+        </div>
         <div id="fallback" hidden class="row">
           <img id="fbImg" alt="Готова сторіз">
           <p class="note" style="flex:1 1 180px">Якщо файл не зберігся, натисніть на картинку правою кнопкою (на телефоні: утримуйте палець) і оберіть «Зберегти зображення».</p>
@@ -175,24 +334,66 @@ button:disabled{opacity:.5;cursor:default}
 
 <script>
 (function(){
-const $=id=>document.getElementById(id);
-const cv=$('cv'),ctx=cv.getContext('2d'),W=1080,H=1920;
+const $=id=>document.getElementById(id),$$=q=>document.querySelectorAll(q);
+const cv=$('cv'),W=1080,PADX=100,FAM_M='Montserrat, "Arial Black", system-ui, sans-serif',FAM_B='Unbounded, Montserrat, "Arial Black", system-ui, sans-serif';
+let ctx=cv.getContext('2d'),H=1920,FAM=FAM_M,LY={y0:150,ts:92,gap:58,logoZ:116,logoY:1640,bot:1570};
 const ABC={lat:'ABCDEFGHIJKLMNOPQRSTUVWXYZ',ukr:'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЮЯ'};
-const KEY='donat-sitka-v2',OLD='donat-sitka-v1';
+const KEY='donat-sitka-v2',OLD='donat-sitka-v1',SKEY='vidkryi-zirku-v1',CKEY='zasvity-misto-v1',BKEY='pobuduy-misto-v1';
+// constellations: star positions projected from catalogue coordinates (east to the left, as seen in the sky)
+const CON={"uma":{"n":"Велика Ведмедиця (Великий Віз)","p":[[9.49,-6.74],[11.34,-1.58],[4.47,2.59],[1.16,-0.54],[-4.2,0.32],[-8.61,0.65],[-13.75,5.3]],"l":[[0,1],[1,2],[2,3],[3,0],[3,4],[4,5],[5,6]]},"umi":{"n":"Мала Ведмедиця","p":[[-0.24,-10.81],[-1.54,-6.96],[-2.06,-2.29],[0.09,2.23],[3.75,5.44],[1.97,8.14],[-1.95,4.14]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]},"cas":{"n":"Кассіопея","p":[[6.43,0.61],[2.61,3.74],[0.33,-0.36],[-3.28,-0.04],[-6.09,-3.97]],"l":[[0,1],[1,2],[2,3],[3,4]]},"ori":{"n":"Оріон","p":[[0.18,-9.72],[-4.84,-7.17],[2.67,-6.08],[0.96,0.6],[-0.1,1.5],[-1.23,2.24],[-2.99,10.08],[5.35,8.6]],"l":[[0,1],[0,2],[1,5],[2,3],[3,4],[4,5],[5,6],[3,7],[6,7]]},"cyg":{"n":"Лебідь (Північний Хрест)","p":[[-5.66,-7.43],[-2.42,-2.14],[2.72,3.04],[8.76,9.96],[-7.65,3.86],[4.37,-7.17]],"l":[[0,1],[1,2],[2,3],[1,4],[1,5]]},"lyr":{"n":"Ліра","p":[[2.24,-2.3],[0.79,-3.16],[0.73,-1.09],[-1.21,-0.4],[-2.21,3.8],[-0.35,3.16]],"l":[[0,1],[1,2],[0,2],[2,3],[3,4],[4,5],[5,2]]},"leo":{"n":"Лев","p":[[5.95,7.43],[6.04,2.57],[2.94,-0.44],[3.63,-4.05],[9.05,-6.96],[10.82,-4.8],[-9.84,-1.41],[-10.19,3.75],[-19.24,4.05]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[2,6],[6,8],[8,7],[7,0],[6,7]]},"sco":{"n":"Скорпіон","p":[[10.55,-13.75],[11.47,-10.68],[11.39,-7.02],[6.28,-7.94],[4.35,-7.16],[2.83,-5.4],[-0.31,0.65],[-0.63,4.42],[-1.11,8.8],[-4.35,9.85],[-9.08,10.12],[-11.45,7.48],[-10.59,6.2],[-9.04,4.0]],"l":[[0,1],[1,2],[1,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13]]},"gem":{"n":"Близнюки","p":[[-6.92,-7.38],[-9.56,-3.65],[-1.9,-5.48],[4.19,-0.39],[9.18,1.99],[11.11,1.86],[-7.52,-2.34],[-4.11,2.77],[-0.39,4.24],[6.0,8.38]],"l":[[0,1],[0,2],[2,3],[3,4],[4,5],[1,6],[6,7],[7,8],[8,9]]},"boo":{"n":"Волопас","p":[[4.72,10.61],[-2.17,2.64],[-8.47,-3.99],[-5.17,-10.98],[0.63,-8.64],[0.74,-0.64],[9.91,11.2]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,6]]},"crb":{"n":"Північна Корона","p":[[2.34,-3.32],[3.51,-1.1],[2.05,1.34],[0.26,1.77],[-1.28,2.0],[-3.06,1.15],[-3.82,-1.85]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]]},"peg":{"n":"Пегас","p":[[-1.77,3.25],[-1.43,-9.71],[-16.18,-12.0],[-18.94,2.46],[3.96,7.66],[12.17,12.32],[18.84,8.12],[3.18,-11.97]],"l":[[0,1],[1,2],[2,3],[3,0],[0,4],[4,5],[5,6],[1,7]]},"tau":{"n":"Телець","p":[[9.94,6.25],[5.07,3.22],[4.26,1.32],[2.87,-0.3],[-10.24,-10.29],[1.16,2.4],[-13.5,-2.84]],"l":[[0,1],[1,2],[2,3],[3,4],[1,5],[5,6]]},"and":{"n":"Андромеда","p":[[10.62,6.97],[3.65,5.65],[-2.75,0.89],[-12.72,-7.07],[-0.11,-1.94],[1.21,-4.54]],"l":[[0,1],[1,2],[2,3],[2,4],[4,5]]},"cep":{"n":"Цефей","p":[[5.79,4.3],[3.34,-3.39],[-4.83,-11.25],[-4.1,0.91],[-0.26,9.33]],"l":[[0,1],[1,2],[2,3],[3,4],[4,0],[1,3]]},"aur":{"n":"Візничий","p":[[2.53,-7.96],[-5.07,-7.06],[-5.7,0.72],[1.08,9.62],[7.19,4.7]],"l":[[0,1],[1,2],[2,3],[3,4],[4,0]]}};
+const TXT={
+ grid:{h:'Відкрити клітинки',btn:'Відкрити',none:'Ще нічого не відкрито.',just:'Щойно відкрито: ',back:'Знову закрито: ',reset:'Закрити всі',all:'Усі клітинки закрито.',
+   stat:'клітинок відкрито',price:'Донат за клітинку, грн',nomore:' (більше закритих клітинок немає)',file:'donat-sitka',bg:'Без зображення тло буде суцільним кольором. Зображення розтягується на весь кадр 9:16.'},
+ stars:{h:'Запалити зірки',btn:'Запалити',none:'Ще жодної зірки не запалено.',just:'Щойно запалено: ',back:'Знову погашено: ',reset:'Погасити всі',all:'Усі зірки погашено.',
+   stat:'зірок запалено',price:'Донат за зірку, грн',nomore:' (більше незапалених зірок немає)',file:'vidkryi-zirku',bg:'Без зображення тло буде нічним небом обраного кольору. Зображення розтягується на весь кадр 9:16.'},
+ build:{h:'',btn:'',none:'',just:'',back:'',reset:'',all:'',stat:'об’єктів на карті',price:'',nomore:'',file:'pobuduy-misto',bg:'Без зображення тло буде суцільним кольором. Зображення розтягується на весь кадр.'},
+ city:{h:'Засвітити вікна',btn:'Засвітити',none:'Ще жодного вікна не засвічено.',just:'Щойно засвічено вікна: ',back:'Знову погашено: ',reset:'Погасити всі',all:'Усі вікна погашено.',
+   stat:'вікон засвічено',price:'Донат за вікно, грн',nomore:' (більше темних вікон немає)',file:'zasvity-misto',bg:'Без зображення тло буде нічним небом обраного кольору. Зображення розтягується на весь кадр 9:16.'}};
+let game='grid';
 let s={cols:6,rows:10,axes:true,names:false,abc:'ukr',fit:'square',mode:'seq',count:1,price:10,
-  title:'ВІДКРИЙ ЗОБРАЖЕННЯ!',sub:'ДОНАТ ВІД 10 ГРН = 1 КЛІТИНКА',counter:true,
+  title:'ВІДКРИЙ ЗОБРАЖЕННЯ!',sub:'ДОНАТ ВІД 10 ГРН = 1 КЛІТИНКА',extra:'',counter:true,
   bgc:'#0d1a0e',textc:'#ffffff',badge:'#246b48',cover:'#d6d4cf',batches:[]};
-let img=null,bgImg=null,logo=null,geom=null;
+let st={smode:'real',con:'uma',showName:false,nums:false,n:30,pts:[],lines:[],ownB:[],prog:{},caption:'',tool:'light',
+  mode:'seq',count:1,price:10,title:'ВІДКРИЙ СУЗІР’Я!',sub:'ДОНАТ ВІД 10 ГРН = 1 ЗІРКА',extra:'',counter:true,fxTw:true,fxCol:false,fxShoot:true,
+  bgc:'#0d1a0e',textc:'#ffffff',badge:'#246b48',starc:'#ffe98a',linec:'#ffffff'};
+let ct={src:'auto',wn:60,seed:7,bprice:200,ctoolA:'light',ctoolO:'light',pts:[],wsize:22,showOff:true,whole:[],bA:[],bO:[],winc:'#ffd76a',bldc:'#1a2b1e',
+  mode:'rnd',count:1,price:10,title:'ЗАСВІТИ МІСТО!',sub:'ДОНАТ ВІД 10 ГРН = 1 ВІКНО',extra:'',counter:true,bgc:'#0d1a0e',textc:'#ffffff',badge:'#246b48'};
+let bt={tpl:'river',seed:5,bcols:9,brows:12,cell:90,mapName:'МІСТО ДОБРИХ СПРАВ',objs:[],hist:[],sel:'house',btool:'place',bcount:3,brand:'sel',
+  finOn:false,goal:50000,raised:0,fmt:'story',mode:'seq',count:1,price:100,
+  title:'ПОБУДУЙ МІСТО!',sub:'ДОНАТ ВІД 100 ГРН = 1 ОБ’ЄКТ',extra:'',counter:true,bgc:'#0d1a0e',textc:'#ffffff',badge:'#246b48'};
+let bgeom=null,terCache=null,dragCell=null;
+let cimg=null,cgeom=null,cityCache=null;
+let img=null,bg={grid:null,stars:null,city:null,build:null},logo=null,geom=null,sgeom=null,sel=null,drag=-1,anim=null,busy=false;
+const S=()=>game==='grid'?s:game==='stars'?st:game==='city'?ct:bt,T=()=>TXT[game],GK=g=>g==='grid'?KEY:g==='stars'?SKEY:g==='city'?CKEY:BKEY;
+// [id, scope (c = current game, g = grid, s = stars), type, min, max]
+const FIELDS=[['count','c','num',1,375],['price','c','num',1,1e7],['counter','c','check'],['title','c','val'],['sub','c','val'],['extra','c','val'],['bgc','c','val'],['textc','c','val'],['badge','c','val'],
+  ['cols','g','num',2,15],['rows','g','num',2,25],['axes','g','check'],['names','g','check'],['abc','g','val'],['fit','g','val'],['cover','g','val'],
+  ['n','s','num',5,80],['showName','s','check'],['nums','s','check'],['con','s','val'],['starc','s','val'],['linec','s','val'],['caption','s','val'],['fxTw','s','check'],['fxCol','s','check'],['fxShoot','s','check'],
+  ['wn','k','num',5,300],['bprice','k','num',1,1e7],['wsize','k','num',8,60],['showOff','k','check'],['winc','k','val'],['bldc','k','val'],
+  ['tpl','b','val'],['bcols','b','num',5,20],['brows','b','num',5,26],['cell','b','num',30,120],['mapName','b','val'],['fmt','b','val'],
+  ['bcount','b','num',1,50],['brand','b','val'],['finOn','b','check'],['goal','b','num',1,1e9],['raised','b','num',0,1e9]];
+const LAZY=['cols','rows','n','wn','bcols','brows'];// sizes apply when the field is left, so half-typed numbers do not drop progress
+const RADIOS=[['mode','c'],['smode','s'],['tool','s'],['src','k'],['ctoolA','k'],['ctoolO','k'],['btool','b']];
+const objOf=sc=>sc==='c'?S():sc==='g'?s:sc==='s'?st:sc==='k'?ct:bt;
 
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);return true}catch(e){return false}}
 function load(){
   try{const j=JSON.parse(ls(KEY)||'null');
-    if(j){Object.assign(s,j);return}
-    const o=JSON.parse(ls(OLD)||'null');  // carry grid progress over from the first version
-    if(o)['cols','rows','axes','names','fit','mode','count','batches'].forEach(k=>{if(k in o)s[k]=o[k]});
+    if(j)Object.assign(s,j);
+    else{const o=JSON.parse(ls(OLD)||'null');if(o)['cols','rows','axes','names','fit','mode','count','batches'].forEach(k=>{if(k in o)s[k]=o[k]})}
   }catch(e){}
+  try{const j=JSON.parse(ls(SKEY)||'null');if(j)Object.assign(st,j)}catch(e){}
+  if(!CON[st.con])st.con='uma';
+  if(st.title==='ВІДКРИЙ ЗІРКУ!')st.title='ВІДКРИЙ СУЗІР’Я!';
+  if(!Array.isArray(st.pts))st.pts=[];if(!Array.isArray(st.lines))st.lines=[];if(!Array.isArray(st.ownB))st.ownB=[];if(!st.prog||typeof st.prog!=='object')st.prog={};
+  if(st.pts.length<st.n)st.pts=genPts(st.n,st.pts);
+  try{const j=JSON.parse(ls(CKEY)||'null');if(j)Object.assign(ct,j)}catch(e){}
+  ['pts','whole','bA','bO'].forEach(k=>{if(!Array.isArray(ct[k]))ct[k]=[]});
+  try{const j=JSON.parse(ls(BKEY)||'null');if(j)Object.assign(bt,j)}catch(e){}
+  cleanBuild();
+  const h=location.hash.slice(1),g0=TXT[h]?h:ls('donat-game');game=g0==='stars'?'stars':'grid';
 }
-function persist(){ls(KEY,JSON.stringify(s))}
+function persist(){ls(KEY,JSON.stringify(s));ls(SKEY,JSON.stringify(st));ls(CKEY,JSON.stringify(ct));ls(BKEY,JSON.stringify(bt))}
 
 function sample(){
   const c=document.createElement('canvas');c.width=900;c.height=1500;const x=c.getContext('2d');
@@ -215,34 +416,62 @@ function readFile(f,cb,noteEl){ if(!f||!f.type.startsWith('image/'))return;
   im.onerror=()=>{noteEl.textContent='Не вдалося прочитати цей файл. Спробуйте JPG або PNG.'};im.src=u; }
 function fromStore(k,cb){const d=ls(k);if(!d)return false;const im=new Image();im.onload=()=>cb(im);im.src=d;return true}
 
-// three image slots
 function setMain(src,isUser){img=shrink(src,1600);
   if(isUser)$('imgNote').textContent=ls(KEY+'-img',img.toDataURL('image/jpeg',.85))
     ?'Ваше зображення завантажено. Воно зберігається лише в цьому браузері.'
     :'Зображення завантажено. Після перезавантаження сторінки його треба буде обрати знову.';
   draw()}
-function setBg(src,isUser){bgImg=src?shrink(src,1920):null;$('clearBg').hidden=!bgImg;
-  if(isUser)$('bgNote').textContent=!bgImg?'Тло суцільне. Колір можна змінити вище.'
-    :ls(KEY+'-bg',bgImg.toDataURL('image/jpeg',.85))?'Фонове зображення встановлено.':'Фон встановлено, але після перезавантаження його треба буде обрати знову.';
-  if(!src)ls(KEY+'-bg',null);draw()}
+function setBg(src,isUser,g){g=g||game;bg[g]=src?shrink(src,1920):null;const k=GK(g)+'-bg';
+  if(!src)ls(k,null);
+  if(isUser)$('bgNote').textContent=!src?'Фонове зображення прибрано.'
+    :ls(k,bg[g].toDataURL('image/jpeg',.85))?'Фонове зображення встановлено.':'Фон встановлено, але після перезавантаження його треба буде обрати знову.';
+  if(g===game)$('clearBg').hidden=!bg[g];draw()}
+
 // built-in logo: a transparent mask, tinted white or black to suit whatever is behind it
 const LOGO_SRC='data:image/png;base64,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';
 (function(){const im=new Image();im.onload=()=>{logo=im;draw()};im.src=LOGO_SRC})();
 function drawLogo(){
-  if(!logo)return;const S=116,x=Math.round((W-S)/2),y=1640;
-  let l=0;try{const d=ctx.getImageData(x,y,S,S).data;let t=0;for(let i=0;i<d.length;i+=16)t+=d[i]*.299+d[i+1]*.587+d[i+2]*.114;l=t/(d.length/16)}catch(e){l=lum(s.bgc)}
-  const c=document.createElement('canvas');c.width=S*2;c.height=S*2;const x2=c.getContext('2d');
+  if(!logo)return;const Z=LY.logoZ,x=Math.round((W-Z)/2),y=LY.logoY;
+  let l=0;try{const d=ctx.getImageData(x,y,Z,Z).data;let t=0;for(let i=0;i<d.length;i+=16)t+=d[i]*.299+d[i+1]*.587+d[i+2]*.114;l=t/(d.length/16)}catch(e){l=lum(S().bgc)}
+  const c=document.createElement('canvas');c.width=Z*2;c.height=Z*2;const x2=c.getContext('2d');
   x2.drawImage(logo,0,0,c.width,c.height);x2.globalCompositeOperation='source-in';x2.fillStyle=l>140?'#111111':'#ffffff';x2.fillRect(0,0,c.width,c.height);
-  ctx.drawImage(c,x,y,S,S);
+  ctx.drawImage(c,x,y,Z,Z);
 }
 
+// ---- progress, shared by both games ----
 const key=(c,r)=>c+':'+r;
-const nameOf=k=>{const[c,r]=k.split(':').map(Number);return (ABC[s.abc][c]||'?')+(r+1)};
-const opened=()=>new Set(s.batches.flat());
+const B=()=>game==='build'?[]:game==='grid'?s.batches:game==='city'?(ct.src==='auto'?ct.bA:ct.bO):st.smode==='real'?(st.prog[st.con]||(st.prog[st.con]=[])):st.ownB;
+function setB(v){if(game==='grid')s.batches=v;else if(game==='city'){if(ct.src==='auto')ct.bA=v;else ct.bO=v}else if(st.smode==='real')st.prog[st.con]=v;else st.ownB=v}
+const opened=()=>new Set(B().flat());
+function allIds(){
+  if(game==='grid'){const a=[];for(let r=0;r<s.rows;r++)for(let c=0;c<s.cols;c++)a.push(key(c,r));return a}
+  if(game==='build')return [];
+  if(game==='city')return Array.from({length:ct.src==='img'?ct.pts.length:cityCache?cityCache.wins.length:ct.wn},(_,i)=>i);
+  return Array.from({length:st.smode==='real'?CON[st.con].p.length:st.n},(_,i)=>i)}
+function nameOf(id){if(game!=='grid')return '№'+(id+1);const[c,r]=id.split(':').map(Number);return (ABC[s.abc][c]||'?')+(r+1)}
+function say(t){$('last').innerHTML=t;$('bLast').innerHTML=t}
+function openMore(){
+  const op=opened(),closed=allIds().filter(k=>!op.has(k));if(!closed.length)return;
+  if(S().mode==='rnd')for(let i=closed.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[closed[i],closed[j]]=[closed[j],closed[i]]}
+  const want=Math.max(1,Math.floor(+S().count||1)),b=closed.slice(0,want);B().push(b);
+  say(T().just+'<b>'+b.map(nameOf).join(', ')+'</b>'+(b.length<want?T().nomore:''));update();
+}
+function toggle(id){
+  if(opened().has(id)){setB(B().map(x=>x.filter(v=>v!==id)).filter(x=>x.length));say(T().back+'<b>'+nameOf(id)+'</b>')}
+  else{B().push([id]);say(T().just+'<b>'+nameOf(id)+'</b>')}
+  update()}
+function trimToGrid(){s.batches=s.batches.map(b=>b.filter(k=>{const[c,r]=k.split(':').map(Number);return c<s.cols&&r<s.rows})).filter(b=>b.length)}
+function genPts(n,keep){const pts=(keep||[]).slice(0,n);let d=.62/Math.sqrt(n),fail=0;
+  while(pts.length<n){const p=[.03+Math.random()*.94,.03+Math.random()*.94];
+    if(pts.every(q=>Math.hypot(q[0]-p[0],q[1]-p[1])>d)){pts.push(p);fail=0}else if(++fail>300){d*=.9;fail=0}}
+  return pts}
+function resizeOwn(){st.pts=genPts(st.n,st.pts);st.ownB=st.ownB.map(b=>b.filter(i=>i<st.n)).filter(b=>b.length);st.lines=st.lines.filter(l=>l[0]<st.n&&l[1]<st.n)}
+
+// ---- drawing ----
 function lum(hex){const n=parseInt(hex.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return (r*299+g*587+b*114)/1000}
 const ink=hex=>lum(hex)>150?'#1a1a1a':'#ffffff';
-const F=(w,z)=>w+' '+Math.round(z)+'px Montserrat, "Arial Black", system-ui, sans-serif';
-
+function hexA(hex,a){const n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'}
+const F=(w,z)=>w+' '+Math.round(z)+'px '+FAM;
 function breakLines(text,maxW){const words=text.split(/\s+/).filter(Boolean),lines=[];let cur='';
   for(const w of words){const t=cur?cur+' '+w:w;if(cur&&ctx.measureText(t).width>maxW){lines.push(cur);cur=w}else cur=t}
   if(cur)lines.push(cur);return lines}
@@ -254,106 +483,446 @@ function fitLines(text,weight,size,min,maxW,maxLines){
 function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
 function cover(src,dx,dy,dw,dh){const a=dw/dh,ia=src.width/src.height;let sw=src.width,sh=src.height;if(ia>a)sw=sh*a;else sh=sw/a;
   ctx.drawImage(src,(src.width-sw)/2,(src.height-sh)/2,sw,sh,dx,dy,dw,dh)}
+function dust(color){let sd=11;const rnd=()=>(sd=sd*16807%2147483647)/2147483647;ctx.fillStyle=color;
+  const tw=anim!==null&&st.fxTw;
+  for(let i=0;i<190;i++){const x=rnd()*W,y=rnd()*H,r=.8+rnd()*1.9,ph=rnd()*6.28,sp=1.5+rnd()*3.5;let a=.07+rnd()*.33;
+    if(tw)a*=.35+.9*(.5+.5*Math.sin(anim*sp+ph));ctx.globalAlpha=Math.min(1,a);ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}
+  ctx.globalAlpha=1}
+const colA=(c,a)=>c[0]==='#'?hexA(c,a):c.replace('hsl(','hsla(').replace(')',','+a+')');
+function shoot(t,color){
+  [{t0:.7,d:.9,a:[930,290],b:[400,690]},{t0:3.5,d:.8,a:[1010,860],b:[650,1170]}].forEach(e=>{const u=(t-e.t0)/e.d;if(u<0||u>1)return;
+    const L=(v)=>[e.a[0]+(e.b[0]-e.a[0])*v,e.a[1]+(e.b[1]-e.a[1])*v],h=L(u),q=L(Math.max(0,u-.28)),al=Math.sin(Math.PI*u);
+    const gr=ctx.createLinearGradient(q[0],q[1],h[0],h[1]);gr.addColorStop(0,colA(color,0));gr.addColorStop(1,colA(color,.9*al));
+    ctx.strokeStyle=gr;ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(q[0],q[1]);ctx.lineTo(h[0],h[1]);ctx.stroke();
+    ctx.fillStyle=colA(color,al);ctx.beginPath();ctx.arc(h[0],h[1],4,0,7);ctx.fill()})}
+function spark(x,y,R,r){ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4-Math.PI/2,q=i%2?r:R;ctx[i?'lineTo':'moveTo'](x+Math.cos(a)*q,y+Math.sin(a)*q)}ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(x,y,r*1.5,0,7);ctx.fill()}
 
 function draw(){
   if(!img)return;
-  const op=opened(),n=s.cols*s.rows,tc=s.textc,PADX=100;
-  // background
-  ctx.fillStyle=s.bgc;ctx.fillRect(0,0,W,H);
-  if(bgImg)cover(bgImg,0,0,W,H);
+  const g=S(),tc=g.textc;ctx.globalAlpha=1;
+  H=game==='build'?({story:1920,post:1350,square:1080})[bt.fmt]||1920:1920;
+  if(cv.height!==H){cv.height=H;cv.style.aspectRatio=W+' / '+H;$('save').textContent='Зберегти PNG 1080 × '+H}
+  LY=H<1900?{y0:64,ts:62,gap:30,logoZ:80,logoY:H-104,bot:H-124}:{y0:150,ts:92,gap:58,logoZ:116,logoY:H-280,bot:H-350};
+  ctx.fillStyle=g.bgc;ctx.fillRect(0,0,W,H);
+  if(bg[game])cover(bg[game],0,0,W,H);else if(game==='stars'||game==='city')dust(tc);
   drawLogo();
-  // title
-  let y=150;const title=s.title.trim(),sub=s.sub.trim();
+  if(game==='stars'&&anim!==null&&st.fxShoot)shoot(anim,tc);
+  let y=LY.y0;const title=g.title.trim(),sub=g.sub.trim();
   ctx.fillStyle=tc;ctx.textAlign='left';ctx.textBaseline='alphabetic';
-  if(title){const t=fitLines(title,'900',92,52,W-2*PADX,3);ctx.font=F('900',t.z);
+  if(title){const bw=game==='build',wt=bw?'800':'900',ts=LY.ts*(bw?.8:1);if(bw)FAM=FAM_B;
+    const t=fitLines(title,wt,ts,Math.min(52,ts*.6),W-2*PADX,3);ctx.font=F(wt,t.z);
     const lh=t.z*1.08;t.lines.forEach((l,i)=>ctx.fillText(l,PADX,y+t.z*.82+i*lh));
-    y+=t.z*.82+(t.lines.length-1)*lh+58}
-  // badge: width follows the text
+    y+=t.z*.82+(t.lines.length-1)*lh+LY.gap;FAM=FAM_M}
   if(sub){const pi=36,pv=16,b=fitLines(sub,'800',34,24,W-2*PADX-2*pi,2);ctx.font=F('800',b.z);
     const lh=b.z*1.3,bw=Math.max(...b.lines.map(l=>ctx.measureText(l).width))+2*pi,bh=b.lines.length*lh+2*pv;
-    ctx.fillStyle=s.badge;rr(PADX,y,bw,bh,14);ctx.fill();
+    ctx.fillStyle=g.badge;rr(PADX,y,bw,bh,14);ctx.fill();
     const cap=ctx.measureText('ДНК').actualBoundingBoxAscent||b.z*.72;
     ctx.fillStyle=tc;b.lines.forEach((l,i)=>ctx.fillText(l,PADX+pi,y+pv+lh/2+i*lh+cap/2));
     y+=bh}
-  // grid
+  let bot=LY.bot;const extra=(g.extra||'').trim();
+  if(extra){const t=fitLines(extra,'700',32,22,W-2*PADX,2);ctx.font=F('700',t.z);ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillStyle=tc;ctx.globalAlpha=.9;
+    t.lines.forEach((l,i)=>ctx.fillText(l,W/2,bot-10-(t.lines.length-1-i)*t.z*1.25));ctx.globalAlpha=1;bot-=t.lines.length*t.z*1.25+26}
+  if(game==='build'){drawBuild(y,bot);$('stOpen').textContent=bt.objs.length;
+    $('stSum').textContent=bt.finOn?(+bt.raised||0).toLocaleString('uk-UA')+' грн':'—';$('bUndo').disabled=!bt.hist.length;$('bClear').disabled=!bt.objs.length;return}
+  if(game==='grid')drawGrid(y,!!(title||sub),bot);else if(game==='stars')drawStars(y,bot);else drawCity(y,bot);
+  const op=opened(),n=allIds().length;
+  $('total').textContent=s.cols*s.rows;$('stOpen').textContent=op.size+' / '+n;
+  let sum=op.size*(+g.price||0);
+  if(game==='city'&&ct.src==='auto'&&cityCache){const L=cityCache;ct.whole=ct.whole.filter(b=>L.byB[b]&&L.byB[b].length&&L.byB[b].every(i=>op.has(i)));
+    let inW=0;ct.whole.forEach(b=>inW+=L.byB[b].length);sum=(op.size-inW)*(+ct.price||0)+ct.whole.length*(+ct.bprice||0)}
+  $('stSum').textContent=sum.toLocaleString('uk-UA')+' грн';
+  $('open').disabled=op.size>=n;$('undo').disabled=!B().length;$('reset').disabled=!op.size;
+  $('unline').disabled=$('nolines').disabled=!st.lines.length;
+}
+function drawGrid(y,head,bot){
+  const op=opened(),n=s.cols*s.rows,tc=s.textc;
   const gut=s.axes?64:0,cntH=s.counter?100:0;
-  const top=y+((title||sub)?80:0)+gut,bottom=1570-cntH;
+  const top=y+(head?80:0)+gut,bottom=bot-cntH;
   const aw=Math.min(W-2*PADX,820)-gut,ah=Math.max(200,bottom-top);
   const ar=s.fit==='square'?s.cols/s.rows:img.width/img.height;
   let gw=aw,gh=gw/ar;if(gh>ah){gh=ah;gw=gh*ar}
   const gx=Math.round((W-gw+gut)/2),gy=Math.round(top),cw=gw/s.cols,ch=gh/s.rows;
   geom={gx,gy,cw,ch};
   const gap=Math.max(4,Math.min(cw,ch)*.08),rad=Math.min(cw,ch)*.1;
-  // opened cells show the picture as one continuous image
   if(op.size){ctx.save();ctx.beginPath();
     op.forEach(k=>{const[c,r]=k.split(':').map(Number);if(c<s.cols&&r<s.rows)ctx.rect(gx+c*cw,gy+r*ch,cw,ch)});
     ctx.clip();cover(img,gx,gy,gw,gh);ctx.restore()}
-  // closed cells
   const ci=ink(s.cover);ctx.textAlign='center';
   for(let r=0;r<s.rows;r++)for(let c=0;c<s.cols;c++){if(op.has(key(c,r)))continue;
     const x=gx+c*cw,yy=gy+r*ch;ctx.fillStyle=s.cover;rr(x+gap/2,yy+gap/2,cw-gap,ch-gap,rad);ctx.fill();
     if(s.names){ctx.globalAlpha=.55;ctx.fillStyle=ci;ctx.font=F('800',Math.min(cw,ch)*.28);ctx.textBaseline='middle';
       ctx.fillText(nameOf(key(c,r)),x+cw/2,yy+ch/2+2);ctx.globalAlpha=1}}
-  // axes
   if(s.axes){ctx.fillStyle=tc;ctx.textBaseline='middle';ctx.font=F('800',Math.max(22,Math.min(46,Math.min(cw,ch)*.45)));
     for(let c=0;c<s.cols;c++)ctx.fillText(ABC[s.abc][c]||'?',gx+c*cw+cw/2,gy-gut/2);
     for(let r=0;r<s.rows;r++)ctx.fillText(r+1,gx-gut/2,gy+r*ch+ch/2+2)}
-  // counter
   if(s.counter){ctx.fillStyle=tc;ctx.textBaseline='top';ctx.font=F('800',44);ctx.fillText('ВІДКРИТО '+op.size+' / '+n,gx+gw/2,gy+gh+50)}
-  // stats
-  $('total').textContent=n;$('stOpen').textContent=op.size+' / '+n;
-  $('stSum').textContent=(op.size*(+s.price||0)).toLocaleString('uk-UA')+' грн';
-  $('open').disabled=op.size>=n;$('undo').disabled=!s.batches.length;$('reset').disabled=!op.size;
 }
+function drawStars(y,bot){
+  const tc=st.textc,real=st.smode==='real',C=CON[st.con],op=opened(),total=real?C.p.length:st.n;
+  let bottom=bot;ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillStyle=tc;
+  if(st.counter){ctx.font=F('800',44);ctx.fillText('ЗАПАЛЕНО '+op.size+' / '+total,W/2,bottom-12);bottom-=88}
+  const cap=real?((st.showName||op.size>=total)?C.n.toUpperCase():''):st.caption.trim();
+  if(cap){const t=fitLines(cap,'800',40,26,W-2*PADX,2);ctx.font=F('800',t.z);
+    t.lines.forEach((l,i)=>ctx.fillText(l,W/2,bottom-12-(t.lines.length-1-i)*t.z*1.2));bottom-=t.lines.length*t.z*1.2+30}
+  else bottom-=78;
+  const ax=140,aw=W-280,ay=y+80,ah=Math.max(300,bottom-ay-40);
+  let pts;
+  if(real){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;C.p.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])});
+    const k=Math.min(aw/(x1-x0||1),ah/(y1-y0||1)),ox=ax+(aw-(x1-x0)*k)/2,oy=ay+(ah-(y1-y0)*k)/2;
+    pts=C.p.map(p=>[ox+(p[0]-x0)*k,oy+(p[1]-y0)*k])}
+  else pts=st.pts.slice(0,st.n).map(p=>[ax+p[0]*aw,ay+p[1]*ah]);
+  sgeom={pts,ax,ay,aw,ah};
+  ctx.strokeStyle=st.linec;ctx.lineWidth=3;ctx.lineCap='round';ctx.globalAlpha=.75;
+  (real?C.l:st.lines).forEach(l=>{const a=pts[l[0]],b=pts[l[1]];if(!a||!b||!op.has(l[0])||!op.has(l[1]))return;
+    const dx=b[0]-a[0],dy=b[1]-a[1],d=Math.hypot(dx,dy)||1,gp=Math.min(26,d*.3),ux=dx/d,uy=dy/d;
+    ctx.beginPath();ctx.moveTo(a[0]+ux*gp,a[1]+uy*gp);ctx.lineTo(b[0]-ux*gp,b[1]-uy*gp);ctx.stroke()});
+  ctx.globalAlpha=1;
+  pts.forEach((p,i)=>{const on=op.has(i);
+    if(on){const k=anim!==null&&st.fxTw?1+.22*Math.sin(anim*4.2+i*1.9):1,R=40*(k*k);
+      const col=anim!==null&&st.fxCol?'hsl('+Math.round((i*53+anim*70)%360)+',95%,78%)':st.starc;
+      const gr=ctx.createRadialGradient(p[0],p[1],0,p[0],p[1],R);gr.addColorStop(0,colA(col,.5));gr.addColorStop(1,colA(col,0));
+      ctx.fillStyle=gr;ctx.beginPath();ctx.arc(p[0],p[1],R,0,7);ctx.fill();ctx.fillStyle=col;spark(p[0],p[1],20*k,5*k)}
+    else{ctx.globalAlpha=.32;ctx.fillStyle=tc;ctx.beginPath();ctx.arc(p[0],p[1],5,0,7);ctx.fill();ctx.globalAlpha=1}
+    if(st.nums){ctx.globalAlpha=on?.9:.5;ctx.fillStyle=tc;ctx.font=F('700',22);ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(i+1,p[0]+16,p[1]+22);ctx.globalAlpha=1}
+    if(sel===i){ctx.strokeStyle=tc;ctx.lineWidth=3;ctx.setLineDash([8,8]);ctx.beginPath();ctx.arc(p[0],p[1],32,0,7);ctx.stroke();ctx.setLineDash([])}});
+}
+// ---- build ----
+const TPL={river:{n:'Місто на річці',river:1,lakes:0,rh:2,rv:2,parks:3},lakes:{n:'Озерний край',river:0,lakes:3,rh:1,rv:2,parks:4},
+  blocks:{n:'Квартали',river:0,lakes:1,rh:3,rv:3,parks:2},green:{n:'Зелене місто',river:1,lakes:1,rh:1,rv:1,parks:6}};
+const DIM=['#1c2e22','#3a3f45','#16344f','#1f4429'],BR={grass:'#8fd16a',park:'#55b85a',road:'#9aa0a6',plaza:'#d9cfae'};
+function terrain(){const k=[bt.tpl,bt.seed,bt.bcols,bt.brows].join();if(terCache&&terCache.k===k)return terCache.t;
+  const C=bt.bcols,R=bt.brows,t=new Array(C*R).fill(0),r=mkRnd(bt.seed*31+7),P=TPL[bt.tpl]||TPL.river,ri=n=>Math.floor(r()*n);
+  const lines=(n,max)=>{const a=[];let tr=0;while(a.length<n&&tr++<80){const v=1+ri(max-2);if(a.every(q=>Math.abs(q-v)>=3))a.push(v)}return a};
+  lines(P.rh,R).forEach(y=>{for(let x=0;x<C;x++)t[y*C+x]=1});
+  lines(P.rv,C).forEach(x=>{for(let y=0;y<R;y++)t[y*C+x]=1});
+  const blob=(type,size)=>{let x=ri(C),y=ri(R);for(let i=0;i<size;i++){const j=y*C+x;if(t[j]===0)t[j]=type;const d=ri(4);
+    x=Math.min(C-1,Math.max(0,x+[1,-1,0,0][d]));y=Math.min(R-1,Math.max(0,y+[0,0,1,-1][d]))}};
+  if(P.river){let x=1+ri(Math.max(1,C-3));const wd=C>=10?2:1;for(let y=0;y<R;y++){for(let w=0;w<wd;w++){const j=y*C+Math.min(C-1,x+w);if(t[j]!==1)t[j]=2}
+    if(r()<.45)x=Math.min(C-2,Math.max(0,x+(r()<.5?1:-1)))}}
+  for(let i=0;i<P.lakes;i++)blob(2,6+ri(8));
+  for(let i=0;i<P.parks;i++)blob(3,5+ri(8));
+  terCache={k,t};return t}
+function box(x,y,w,h,r,c){ctx.fillStyle=c;rr(x,y,w,h,r);ctx.fill()}
+function circ(x,y,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}
+function tri(a,b,d,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(d[0],d[1]);ctx.closePath();ctx.fill()}
+function treeAt(x,y,r){circ(x+r*.15,y+r*.2,r,'rgba(0,0,0,.2)');circ(x,y,r,'#2f8f3e');circ(x-r*.25,y-r*.25,r*.5,'#5cc162')}
+const SH='rgba(0,0,0,.22)';
+// every object is a top-down tile drawn from the same primitives: bright ground, soft shadow, flat roof, one white or accent detail
+const OBJ={
+ house:{n:'Будинок',base:'grass',d:(x,y,u)=>{box(x+18*u,y+21*u,68*u,62*u,6*u,SH);box(x+14*u,y+16*u,68*u,62*u,6*u,'#e2574c');box(x+14*u,y+16*u,68*u,30*u,6*u,'#f27f6f');
+   ctx.fillStyle='#b53e36';ctx.fillRect(x+14*u,y+45*u,68*u,3*u);box(x+62*u,y+24*u,12*u,12*u,2*u,'#7a4a3a')}},
+ flats:{n:'Багатоповерхівка',base:'grass',d:(x,y,u)=>{box(x+16*u,y+17*u,76*u,76*u,6*u,SH);box(x+12*u,y+12*u,76*u,76*u,6*u,'#6f8fc0');box(x+20*u,y+20*u,60*u,60*u,4*u,'#a9c3e6');
+   [[30,30],[56,30],[30,56],[56,56]].forEach(q=>box(x+q[0]*u,y+q[1]*u,14*u,14*u,2*u,'#5878a8'))}},
+ tree:{n:'Дерево',base:'grass',d:(x,y,u)=>treeAt(x+50*u,y+50*u,30*u)},
+ park:{n:'Парк',base:'park',d:(x,y,u)=>{ctx.strokeStyle='#efe3b4';ctx.lineWidth=9*u;ctx.lineCap='butt';ctx.beginPath();ctx.moveTo(x,y+62*u);ctx.quadraticCurveTo(x+48*u,y+58*u,x+52*u,y+100*u);ctx.stroke();
+   treeAt(x+28*u,y+28*u,16*u);treeAt(x+72*u,y+32*u,14*u);treeAt(x+78*u,y+76*u,13*u)}},
+ road:{n:'Дорога',base:'road',d:(x,y,u,nb)=>{nb=nb||{};const any=nb.l||nb.r||nb.t||nb.b;ctx.strokeStyle='#ffffff';ctx.lineWidth=5*u;ctx.lineCap='butt';ctx.setLineDash([11*u,9*u]);
+   const cx=x+50*u,cy=y+50*u,L=(a,b)=>{ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(a,b);ctx.stroke()};
+   if(nb.l||!any)L(x,cy);if(nb.r||!any)L(x+100*u,cy);if(nb.t)L(cx,y);if(nb.b)L(cx,y+100*u);ctx.setLineDash([])}},
+ shop:{n:'Магазин',base:'grass',d:(x,y,u)=>{box(x+16*u,y+19*u,76*u,70*u,6*u,SH);box(x+12*u,y+14*u,76*u,70*u,6*u,'#f2a33a');box(x+12*u,y+14*u,76*u,26*u,6*u,'#f7c06c');
+   for(let i=0;i<5;i++)box(x+(12+i*15.2)*u,y+62*u,15.2*u,22*u,i===0||i===4?4*u:0,i%2?'#ffffff':'#e2574c')}},
+ theatre:{n:'Театр',base:'plaza',d:(x,y,u)=>{box(x+16*u,y+31*u,76*u,60*u,5*u,SH);box(x+12*u,y+28*u,76*u,60*u,5*u,'#9b6bd6');tri([x+10*u,y+32*u],[x+50*u,y+8*u],[x+90*u,y+32*u],'#bd98ee');
+   [22,38,54,70].forEach(q=>box(x+q*u,y+48*u,8*u,32*u,2*u,'#ffffff'))}},
+ cannons:{n:'13 гармат',base:'park',d:(x,y,u)=>{[22,48,74].forEach(q=>{box(x+14*u,y+(q-4)*u,36*u,8*u,3*u,'#26292c');circ(x+22*u,y+(q+4)*u,8*u,'#5a3d28');circ(x+22*u,y+(q+4)*u,3*u,'#26292c')});
+   ctx.fillStyle='#ffffff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='800 '+Math.round(30*u)+'px '+FAM_M;ctx.fillText('13',x+73*u,y+52*u)}},
+ museum:{n:'Музей',base:'plaza',d:(x,y,u)=>{box(x+16*u,y+33*u,76*u,58*u,5*u,SH);box(x+12*u,y+30*u,76*u,58*u,5*u,'#e9b949');tri([x+10*u,y+34*u],[x+50*u,y+10*u],[x+90*u,y+34*u],'#f6d98a');
+   circ(x+50*u,y+60*u,17*u,'#b9801f');circ(x+50*u,y+60*u,9*u,'#f6d98a')}},
+ hospital:{n:'Лікарня',base:'grass',d:(x,y,u)=>{box(x+16*u,y+17*u,76*u,76*u,8*u,SH);box(x+12*u,y+12*u,76*u,76*u,8*u,'#f3f5f7');box(x+42*u,y+26*u,16*u,48*u,3*u,'#e23b3b');box(x+26*u,y+42*u,48*u,16*u,3*u,'#e23b3b')}},
+ school:{n:'Школа',base:'grass',d:(x,y,u)=>{box(x+16*u,y+19*u,76*u,40*u,5*u,SH);box(x+16*u,y+19*u,34*u,72*u,5*u,SH);box(x+12*u,y+14*u,76*u,40*u,5*u,'#f4c542');box(x+12*u,y+14*u,34*u,72*u,5*u,'#f4c542');
+   box(x+12*u,y+14*u,76*u,12*u,5*u,'#f9dd85');ctx.strokeStyle='#ffffff';ctx.lineWidth=4*u;ctx.beginPath();ctx.arc(x+70*u,y+72*u,12*u,0,7);ctx.stroke()}},
+ church:{n:'Церква',base:'grass',d:(x,y,u)=>{box(x+42*u,y+14*u,24*u,80*u,4*u,SH);box(x+18*u,y+38*u,72*u,24*u,4*u,SH);box(x+38*u,y+10*u,24*u,80*u,4*u,'#f5f1e6');box(x+14*u,y+34*u,72*u,24*u,4*u,'#f5f1e6');
+   circ(x+50*u,y+46*u,15*u,'#e0a526');circ(x+45*u,y+41*u,6*u,'#f8dc7e')}}};
+function drawTile(t,x,y,s,nb){const o=OBJ[t];if(!o)return;ctx.fillStyle=BR[o.base];ctx.fillRect(x,y,s+.6,s+.6);o.d(x,y,s/100,nb)}
+const objAt=(c,r)=>bt.objs.findIndex(o=>o.c===c&&o.r===r);
+function canPut(t,c,r){if(c<0||r<0||c>=bt.bcols||r>=bt.brows)return false;const tr=terrain()[r*bt.bcols+c];return tr===2?false:tr===1?t==='road':true}
+function isRoad(c,r){if(c<0||r<0||c>=bt.bcols||r>=bt.brows)return false;const i=objAt(c,r);return i>=0?bt.objs[i].t==='road':terrain()[r*bt.bcols+c]===1}
+function cleanBuild(){if(!TPL[bt.tpl])bt.tpl='river';if(!Array.isArray(bt.hist))bt.hist=[];if(!Array.isArray(bt.objs))bt.objs=[];if(!OBJ[bt.sel])bt.sel='house';
+  const seen={};bt.objs=bt.objs.filter(o=>o&&OBJ[o.t]&&canPut(o.t,o.c,o.r)&&!seen[o.c+':'+o.r]&&(seen[o.c+':'+o.r]=1))}
+function snap(){bt.hist.push(JSON.stringify(bt.objs));if(bt.hist.length>40)bt.hist.shift()}
+function drawBuild(y,bot){
+  const tc=bt.textc,T=terrain(),C=bt.bcols,R=bt.brows,post=H<1900,name=bt.mapName.trim();
+  const res=(name?62:0)+(bt.finOn?100:0)+(bt.counter?62:0),top=y+(post?34:70),aw=W-120,ah=Math.max(160,bot-res-top);
+  const cs=Math.min(bt.cell,aw/C,ah/R),mw=cs*C,mh=cs*R,mx=(W-mw)/2,my=top+Math.max(0,(ah-mh)/2);bgeom={x:mx,y:my,cs,cols:C,rows:R};
+  ctx.save();rr(mx,my,mw,mh,Math.min(18,cs*.3));ctx.clip();
+  for(let r=0;r<R;r++)for(let c=0;c<C;c++){ctx.fillStyle=DIM[T[r*C+c]];ctx.fillRect(mx+c*cs,my+r*cs,cs+.6,cs+.6)}
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.beginPath();
+  for(let c=1;c<C;c++){ctx.moveTo(mx+c*cs,my);ctx.lineTo(mx+c*cs,my+mh)}for(let r=1;r<R;r++){ctx.moveTo(mx,my+r*cs);ctx.lineTo(mx+mw,my+r*cs)}ctx.stroke();
+  bt.objs.forEach((o,i)=>{if(i===drag&&dragCell)ctx.globalAlpha=.35;
+    drawTile(o.t,mx+o.c*cs,my+o.r*cs,cs,o.t==='road'?{l:isRoad(o.c-1,o.r),r:isRoad(o.c+1,o.r),t:isRoad(o.c,o.r-1),b:isRoad(o.c,o.r+1)}:null);ctx.globalAlpha=1});
+  if(drag>=0&&dragCell&&bt.objs[drag]){const o=bt.objs[drag],ok=(objAt(dragCell.c,dragCell.r)<0||objAt(dragCell.c,dragCell.r)===drag)&&canPut(o.t,dragCell.c,dragCell.r);
+    ctx.globalAlpha=.8;drawTile(o.t,mx+dragCell.c*cs,my+dragCell.r*cs,cs,null);ctx.globalAlpha=1;
+    ctx.strokeStyle=ok?'#ffffff':'#ff5a4d';ctx.lineWidth=4;ctx.strokeRect(mx+dragCell.c*cs+2,my+dragCell.r*cs+2,cs-4,cs-4)}
+  ctx.restore();ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=2;rr(mx,my,mw,mh,Math.min(18,cs*.3));ctx.stroke();
+  let yy=my+mh;ctx.fillStyle=tc;ctx.textAlign='center';ctx.textBaseline='alphabetic';
+  if(name){const t=fitLines(name,'800',36,22,W-2*PADX,1);ctx.font=F('800',t.z);ctx.fillText(t.lines.join(' '),W/2,yy+48);yy+=62}
+  if(bt.finOn){const g=Math.max(1,+bt.goal||1),v=Math.max(0,+bt.raised||0),k=Math.min(1,v/g),bx=PADX,bw=W-2*PADX;
+    box(bx,yy+18,bw,24,12,'rgba(255,255,255,.16)');if(k>0)box(bx,yy+18,Math.max(24,bw*k),24,12,bt.badge);
+    ctx.fillStyle=tc;ctx.font=F('800',30);ctx.fillText('ЗІБРАНО '+v.toLocaleString('uk-UA')+' / '+g.toLocaleString('uk-UA')+' ГРН',W/2,yy+82);yy+=100}
+  if(bt.counter){ctx.fillStyle=tc;ctx.font=F('800',38);ctx.fillText('ОБ’ЄКТІВ НА КАРТІ: '+bt.objs.length,W/2,yy+46)}
+}
+function cellAt(p){const g=bgeom;if(!g)return null;const c=Math.floor((p.x-g.x)/g.cs),r=Math.floor((p.y-g.y)/g.cs);return c<0||r<0||c>=g.cols||r>=g.rows?null:{c,r}}
+function whyNot(t,c,r){return terrain()[r*bt.bcols+c]===2?'На воді будувати не можна.':'На дорозі можна розмістити лише об’єкт «Дорога».'}
+function buildClick(p){const q=cellAt(p);if(!q||bt.btool==='move')return;const i=objAt(q.c,q.r);
+  if(bt.btool==='del'){if(i<0)return;snap();const o=bt.objs.splice(i,1)[0];say('Прибрано: <b>'+OBJ[o.t].n+'</b>');update();return}
+  if(i>=0){say('Ця клітинка вже зайнята. Щоб замінити об’єкт, спершу видаліть його.');return}
+  if(!canPut(bt.sel,q.c,q.r)){say(whyNot(bt.sel,q.c,q.r));return}
+  snap();bt.objs.push({t:bt.sel,c:q.c,r:q.r});say('Додано: <b>'+OBJ[bt.sel].n+'</b>');update()}
+function addRandom(){const keys=Object.keys(OBJ);let added=0;snap();
+  for(let k=0;k<bt.bcount;k++){const t=bt.brand==='any'?keys[Math.floor(Math.random()*keys.length)]:bt.sel,free=[];
+    for(let r=0;r<bt.brows;r++)for(let c=0;c<bt.bcols;c++)if(objAt(c,r)<0&&canPut(t,c,r))free.push([c,r]);
+    if(!free.length)continue;const q=free[Math.floor(Math.random()*free.length)];bt.objs.push({t,c:q[0],r:q[1]});added++}
+  if(!added){bt.hist.pop();say('Вільних клітинок для цього об’єкта немає.');return}
+  say('Додано об’єктів: <b>'+added+'</b>');update()}
+async function giveFile(blob,filename,note){
+  const a=()=>{const u=URL.createObjectURL(blob),e=document.createElement('a');e.href=u;e.download=filename;document.body.appendChild(e);e.click();e.remove();note.textContent='Збережено: '+filename};
+  try{const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;if(!dl)a();else{await dl.save({filename,data:blob});note.textContent='Збережено: '+filename}}
+  catch(err){if(err&&err.code==='declined')note.textContent='Збереження скасовано.';else a()}}
+function bindBuild(){
+  $('tpl').innerHTML=Object.keys(TPL).map(k=>'<option value="'+k+'">'+TPL[k].n+'</option>').join('');
+  const main=ctx;
+  Object.keys(OBJ).forEach(k=>{const b=document.createElement('button'),c=document.createElement('canvas'),sp=document.createElement('span');c.width=c.height=88;
+    ctx=c.getContext('2d');drawTile(k,0,0,88,{l:1,r:1});ctx=main;sp.textContent=OBJ[k].n;b.type='button';b.dataset.k=k;b.appendChild(c);b.appendChild(sp);
+    b.addEventListener('click',()=>{bt.sel=k;bt.btool='place';syncUI();persist()});$('pal').appendChild(b)});
+  $('bAdd').addEventListener('click',addRandom);
+  $('bUndo').addEventListener('click',()=>{if(!bt.hist.length)return;try{bt.objs=JSON.parse(bt.hist.pop())}catch(e){}say('Останню дію скасовано.');update()});
+  arm($('bClear'),()=>true,()=>{snap();bt.objs=[];say('Карту очищено. Це можна скасувати.');update()});
+  arm($('regenMap'),()=>bt.objs.length>0,()=>{const n=bt.objs.length;snap();bt.seed=1+Math.floor(Math.random()*99999);cleanBuild();
+    say('Згенеровано нову карту.'+(n>bt.objs.length?' Об’єктів прибрано, бо для них не стало місця: '+(n-bt.objs.length)+'.':''));update()});
+  $('projSave').addEventListener('click',()=>giveFile(new Blob([JSON.stringify({app:'pobuduy-misto',v:1,data:bt})],{type:'application/json'}),'pobuduy-misto-proekt.json',$('projNote')));
+  $('projLoad').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+    rd.onload=()=>{try{const j=JSON.parse(rd.result);if(!j||j.app!=='pobuduy-misto'||!j.data||!Array.isArray(j.data.objs))throw 0;
+        Object.assign(bt,j.data);terCache=null;cleanBuild();syncUI();update();$('projNote').textContent='Проєкт відкрито: об’єктів на карті '+bt.objs.length+'.'}
+      catch(x){$('projNote').textContent='Це не файл проєкту «Побудуй місто». Оберіть файл, збережений кнопкою «Зберегти проєкт у файл».'}
+      e.target.value=''};rd.readAsText(f)});
+}
+// ---- city ----
+function mkRnd(seed){let sd=seed%2147483647||1;return()=>(sd=sd*16807%2147483647)/2147483647}
+function cityLayout(top,base){
+  const k=[ct.seed,ct.wn,Math.round(top),Math.round(base)].join();if(cityCache&&cityCache.k===k)return cityCache;
+  const r=mkRnd(ct.seed*7919+13),X0=24,X1=1056,maxH=base-top,Bs=[];let x=X0,idx=0,church=null;const cAt=1+Math.floor(r()*4);
+  while(x<X1-70){
+    if(idx===cAt&&x+190<X1){church={x,w:180,h:maxH*(.3+r()*.08)};x+=188;idx++;continue}
+    let w=105+r()*95;if(X1-(x+w)<90)w=X1-x;
+    Bs.push({x,w,h:maxH*(.36+r()*.64),roof:Math.floor(r()*3)});x+=w+(r()<.35?10:0);idx++}
+  const slots=c=>{const a=[];Bs.forEach((b,bi)=>{const cols=Math.floor((b.w-c*.3)/c),rows=Math.floor((b.h-c*.7)/(c*1.25));
+    for(let i=0;i<rows;i++)for(let j=0;j<cols;j++)a.push({x:b.x+(b.w-cols*c)/2+j*c+c*.25,y:base-b.h+c*.5+i*c*1.25,w:c*.5,h:c*.7,b:bi})});return a};
+  let wins=[];for(let c=92;c>=18;c-=2){wins=slots(c);if(wins.length>=ct.wn)break}
+  while(wins.length>ct.wn)wins.splice(Math.floor(r()*wins.length),1);
+  const byB=Bs.map(()=>[]);wins.forEach((w,i)=>byB[w.b].push(i));
+  return cityCache={k,Bs,church,wins,byB,base,top}}
+function dome(cx,ty,rw){ctx.beginPath();ctx.moveTo(cx-rw,ty+1);ctx.bezierCurveTo(cx-rw*1.5,ty-rw*1.3,cx-rw*.2,ty-rw*1.5,cx,ty-rw*2.3);ctx.bezierCurveTo(cx+rw*.2,ty-rw*1.5,cx+rw*1.5,ty-rw*1.3,cx+rw,ty+1);ctx.closePath();ctx.fill();
+  ctx.fillRect(cx-2,ty-rw*2.3-26,4,28);ctx.fillRect(cx-9,ty-rw*2.3-18,18,4)}
+function drawCity(y,bot){
+  const tc=ct.textc,op=opened();let bottom=bot;
+  const top=y+90;let wins;
+  if(ct.counter)bottom-=88;
+  const base=bottom-10;
+  if(ct.src==='auto'){const L=cityLayout(top,base);cgeom={L};
+    ctx.fillStyle=ct.bldc;ctx.fillRect(0,base,W,8);
+    L.Bs.forEach(b=>{const t=base-b.h;ctx.fillRect(b.x,t,b.w,b.h);
+      if(b.roof===1)ctx.fillRect(b.x+b.w*.2,t-24,b.w*.45,24);
+      if(b.roof===2){ctx.fillRect(b.x+b.w*.5-2,t-64,4,64);ctx.fillRect(b.x+b.w*.5-12,t-14,24,14)}});
+    if(L.church){const c=L.church,cx=c.x+c.w/2,h=c.h;ctx.fillRect(c.x+8,base-h*.6,c.w-16,h*.6);
+      ctx.fillRect(cx-24,base-h,48,h);dome(cx,base-h,25);
+      [c.x+34,c.x+c.w-34].forEach(q=>{ctx.fillRect(q-16,base-h*.8,32,h*.8);dome(q,base-h*.8,17)})}
+    wins=L.wins}
+  else{cityCache=null;cgeom={};
+    if(!cimg){ctx.fillStyle=tc;ctx.globalAlpha=.6;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=F('700',34);
+      ctx.fillText('Завантажте ілюстрацію міста',W/2,(top+base)/2);ctx.globalAlpha=1;wins=[]}
+    else{const k=Math.min(W/cimg.width,(base-top)/cimg.height),w=cimg.width*k,h=cimg.height*k,r={x:(W-w)/2,y:base-h,w,h};
+      ctx.drawImage(cimg,r.x,r.y,w,h);cgeom.img=r;const z=ct.wsize;
+      wins=ct.pts.map(p=>({x:r.x+p[0]*w-z/2,y:r.y+p[1]*h-z*.675,w:z,h:z*1.35,b:-1}))}}
+  cgeom.wins=wins;
+  const off=lum(ct.src==='auto'?ct.bldc:'#000000')>150?'rgba(0,0,0,.16)':'rgba(255,255,255,.1)';
+  wins.forEach((w,i)=>{if(op.has(i))return;
+    if(ct.src==='auto'){ctx.fillStyle=off;ctx.fillRect(w.x,w.y,w.w,w.h)}
+    else if(ct.showOff){ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(w.x,w.y,w.w,w.h);ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;ctx.strokeRect(w.x,w.y,w.w,w.h)}});
+  ctx.fillStyle=ct.winc;ctx.shadowColor=ct.winc;ctx.shadowBlur=22;
+  wins.forEach((w,i)=>{if(op.has(i))ctx.fillRect(w.x,w.y,w.w,w.h)});
+  ctx.shadowBlur=0;ctx.shadowColor='transparent';
+  if(ct.counter){ctx.fillStyle=tc;ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.font=F('800',44);ctx.fillText('ЗАСВІЧЕНО '+op.size+' / '+wins.length,W/2,bot-12)}
+}
+function nearWin(p,lim){if(!cgeom||!cgeom.wins)return -1;let best=-1,bd=lim||55;cgeom.wins.forEach((w,i)=>{const d=Math.hypot(w.x+w.w/2-p.x,w.y+w.h/2-p.y);if(d<bd){bd=d;best=i}});return best}
+function lightB(bi){const L=cityCache;if(!L||!L.byB[bi])return;const op=opened(),ids=L.byB[bi].filter(i=>!op.has(i));
+  if(!ids.length){say('У будинку <b>№'+(bi+1)+'</b> уже світяться всі вікна.');return}
+  ct.bA.push(ids);if(ct.whole.indexOf(bi)<0)ct.whole.push(bi);
+  say('Засвічено цілий будинок <b>№'+(bi+1)+'</b>, вікон: '+ids.length);update()}
+function nextB(){const L=cityCache;if(!L)return;const op=opened(),c=[];L.byB.forEach((a,bi)=>{if(a.some(i=>!op.has(i)))c.push(bi)});
+  if(!c.length){say('Усі будинки вже світяться.');return}
+  lightB(ct.mode==='rnd'?c[Math.floor(Math.random()*c.length)]:c[0])}
+function dropWin(i){ct.pts.splice(i,1);ct.bO=ct.bO.map(b=>b.filter(v=>v!==i).map(v=>v>i?v-1:v)).filter(b=>b.length)}
+function cityClick(p){
+  if(ct.src==='auto'){const L=cityCache;if(!L)return;
+    if(ct.ctoolA==='bld'){let bi=L.Bs.findIndex(b=>p.x>=b.x&&p.x<=b.x+b.w&&p.y>=L.base-b.h&&p.y<=L.base);
+      if(bi<0){const i=nearWin(p);if(i>=0)bi=L.wins[i].b}
+      if(bi>=0)lightB(bi);return}
+    const i=nearWin(p);if(i>=0)toggle(i);return}
+  if(ct.ctoolO==='move')return;
+  if(ct.ctoolO==='edit'){const i=nearWin(p,Math.max(24,ct.wsize)),r=cgeom&&cgeom.img;
+    if(i>=0){dropWin(i);say('Вікно прибрано. Усього вікон: '+ct.pts.length)}
+    else if(r&&p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h){ct.pts.push([(p.x-r.x)/r.w,(p.y-r.y)/r.h]);say('Вікно додано. Усього вікон: '+ct.pts.length)}
+    else return;
+    update();return}
+  const i=nearWin(p);if(i>=0)toggle(i)}
+function autoPlace(){
+  if(!cimg){say('Спочатку завантажте ілюстрацію міста.');return}
+  const w=96,h=Math.max(8,Math.round(96*cimg.height/cimg.width)),c=document.createElement('canvas');c.width=w;c.height=h;
+  const x=c.getContext('2d');x.drawImage(cimg,0,0,w,h);const d=x.getImageData(0,0,w,h).data,L=[];
+  for(let i=0;i<w*h;i++)L.push(d[i*4]*.299+d[i*4+1]*.587+d[i*4+2]*.114);
+  const med=L.slice().sort((a,b)=>a-b)[L.length>>1],cand=[];
+  for(let yy=1;yy<h-1;yy++)for(let xx=1;xx<w-1;xx++)if(L[yy*w+xx]<=med)cand.push([(xx+.5)/w,(yy+.5)/h]);
+  for(let i=cand.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cand[i],cand[j]]=[cand[j],cand[i]]}
+  const ar=cimg.width/cimg.height;let dm=Math.sqrt(cand.length/(w*h)/ct.wn)*.85,pts=[];
+  for(let t=0;t<8&&pts.length<ct.wn;t++,dm*=.8){pts=[];for(const q of cand){if(pts.length>=ct.wn)break;if(pts.every(o=>Math.hypot(o[0]-q[0],(o[1]-q[1])/ar)>dm))pts.push(q)}}
+  ct.pts=pts;ct.bO=[];say('Розставлено вікон: '+pts.length+'. Зайві можна прибрати, а потрібні додати вручну.');update()}
+function setCity(src,isUser){cimg=shrink(src,1600);
+  if(isUser)$('cityNote').textContent=ls(CKEY+'-img',cimg.toDataURL('image/jpeg',.85))
+    ?'Ілюстрацію завантажено. Вона зберігається лише в цьому браузері.'
+    :'Ілюстрацію завантажено. Після перезавантаження сторінки її треба буде обрати знову.';
+  draw()}
 function update(){persist();draw()}
-function say(t){$('last').innerHTML=t}
 
-function openCells(){
-  const op=opened(),closed=[];
-  for(let r=0;r<s.rows;r++)for(let c=0;c<s.cols;c++)if(!op.has(key(c,r)))closed.push(key(c,r));
-  if(!closed.length)return;
-  if(s.mode==='rnd')for(let i=closed.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[closed[i],closed[j]]=[closed[j],closed[i]]}
-  const want=Math.max(1,Math.floor(+s.count||1)),b=closed.slice(0,want);
-  s.batches.push(b);
-  say('Щойно відкрито: <b>'+b.map(nameOf).join(', ')+'</b>'+(b.length<want?' (більше закритих клітинок немає)':''));update();
+// ---- interface ----
+function hintText(){
+  if(game==='build')return bt.btool==='move'?'Перетягніть об’єкт на вільну клітинку карти.':bt.btool==='del'?'Натисніть на об’єкт на карті, щоб прибрати його.':'Оберіть об’єкт у бібліотеці й натисніть на клітинку карти.';
+  if(game==='grid')return 'Натисніть на клітинку в сторіз, щоб відкрити або закрити її вручну.';
+  if(st.smode==='own'&&st.tool==='link')return 'Натисніть по черзі на дві запалені зірки, щоб з\'єднати їх лінією. Якщо лінія між ними вже є, вона зникне.';
+  if(st.smode==='own'&&st.tool==='move')return 'Перетягніть зірку в сторіз на нове місце.';
+  if(game==='city'){
+    if(ct.src==='auto')return ct.ctoolA==='bld'?'Натисніть на будинок у сторіз, щоб засвітити всі його вікна.':'Натисніть на вікно в сторіз, щоб засвітити або погасити його вручну.';
+    if(ct.ctoolO==='edit')return 'Натисніть на ілюстрацію, щоб додати вікно. Натискання на вже наявне вікно прибирає його.';
+    if(ct.ctoolO==='move')return 'Перетягніть вікно на нове місце.';
+    return 'Натисніть на вікно в сторіз, щоб засвітити або погасити його вручну.'}
+  return 'Натисніть на зірку в сторіз, щоб запалити або погасити її вручну.'}
+function syncUI(){
+  const t=T();
+  $$('.g-grid').forEach(e=>e.hidden=game!=='grid');$$('.g-stars').forEach(e=>e.hidden=game!=='stars');$$('.g-city').forEach(e=>e.hidden=game!=='city');$$('.g-build').forEach(e=>e.hidden=game!=='build');$$('.not-build').forEach(e=>e.hidden=game==='build');
+  $$('#pal button').forEach(b=>b.classList.toggle('on',b.dataset.k===bt.sel));
+  $$('.c-auto').forEach(e=>e.hidden=game!=='city'||ct.src!=='auto');$$('.c-own').forEach(e=>e.hidden=game!=='city'||ct.src!=='img');
+  $$('.m-real').forEach(e=>e.hidden=st.smode!=='real');$$('.m-own').forEach(e=>e.hidden=st.smode!=='own');
+  FIELDS.forEach(f=>{const o=objOf(f[1]),el=$(f[0]);if(f[2]==='check')el.checked=!!o[f[0]];else el.value=o[f[0]]});
+  RADIOS.forEach(f=>$$('input[name='+f[0]+']').forEach(r=>r.checked=r.value===objOf(f[1])[f[0]]));
+  $$('input[name=game]').forEach(r=>r.checked=r.value===game);
+  $('openH').textContent=t.h;$('open').textContent=t.btn;$('reset').textContent=t.reset;$('priceL').textContent=t.price;$('stL').textContent=t.stat;
+  $('hint').textContent=hintText();$('clearBg').hidden=!bg[game];
+  cv.style.touchAction=(game==='build'&&bt.btool==='move')||(game==='stars'&&st.smode==='own'&&st.tool==='move')||(game==='city'&&ct.src==='img'&&ct.ctoolO==='move')?'none':'';
 }
-function trimToGrid(){s.batches=s.batches.map(b=>b.filter(k=>{const[c,r]=k.split(':').map(Number);return c<s.cols&&r<s.rows})).filter(b=>b.length)}
-
+function arm(btn,need,fn){let t=0,orig='';btn.addEventListener('click',()=>{
+  if(!need()){fn();return}
+  if(t){clearTimeout(t);t=0;btn.textContent=orig;fn()}
+  else{orig=btn.textContent;btn.textContent='Натисніть ще раз, щоб підтвердити';t=setTimeout(()=>{t=0;btn.textContent=orig},4000)}})}
 function dropZone(el,cb,note){
   el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over')});
   el.addEventListener('dragleave',()=>el.classList.remove('over'));
   el.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();el.classList.remove('over');readFile(e.dataTransfer.files[0],cb,note)});
 }
+function pos(e){const b=cv.getBoundingClientRect(),k=W/b.width;return{x:(e.clientX-b.left)*k,y:(e.clientY-b.top)*k}}
+function near(p){if(!sgeom)return -1;let best=-1,bd=70;sgeom.pts.forEach((q,i)=>{const d=Math.hypot(q[0]-p.x,q[1]-p.y);if(d<bd){bd=d;best=i}});return best}
 function bind(){
-  const num=(id,min,max)=>{$(id).value=s[id];$(id).addEventListener('input',e=>{let v=parseInt(e.target.value,10);if(isNaN(v))return;v=Math.min(max,Math.max(min,v));s[id]=v;if(id==='cols'||id==='rows')trimToGrid();update()});
-    $(id).addEventListener('change',e=>{e.target.value=s[id]})};
-  num('cols',2,15);num('rows',2,25);num('count',1,375);num('price',1,1e7);
-  ['axes','names','counter'].forEach(id=>{$(id).checked=s[id];$(id).addEventListener('change',e=>{s[id]=e.target.checked;update()})});
-  ['abc','fit','title','sub','bgc','textc','badge','cover'].forEach(id=>{$(id).value=s[id];$(id).addEventListener('input',e=>{s[id]=e.target.value;update()})});
-  document.querySelectorAll('input[name=mode]').forEach(r=>{r.checked=r.value===s.mode;r.addEventListener('change',()=>{s.mode=r.value;persist()})});
-  $('open').addEventListener('click',openCells);
-  $('undo').addEventListener('click',()=>{const b=s.batches.pop();if(b)say('Знову закрито: <b>'+b.map(nameOf).join(', ')+'</b>');update()});
-  let armed=0;
-  $('reset').addEventListener('click',e=>{ if(Date.now()-armed<4000){s.batches=[];armed=0;e.target.textContent='Закрити всі';say('Усі клітинки закрито.');update()}
-    else{armed=Date.now();e.target.textContent='Натисніть ще раз, щоб підтвердити';setTimeout(()=>{if(armed){armed=0;e.target.textContent='Закрити всі'}},4000)}});
+  $('con').innerHTML=Object.keys(CON).map(k=>'<option value="'+k+'">'+CON[k].n+' · зірок: '+CON[k].p.length+'</option>').join('');
+  FIELDS.forEach(f=>{const id=f[0],el=$(id);
+    el.addEventListener(f[2]==='check'||LAZY.indexOf(id)>=0?'change':'input',()=>{const o=objOf(f[1]);
+      if(f[2]==='num'){let v=parseInt(el.value,10);if(isNaN(v))return;o[id]=Math.min(f[4],Math.max(f[3],v))}
+      else o[id]=f[2]==='check'?el.checked:el.value;
+      if(id==='cols'||id==='rows')trimToGrid();
+      if(id==='n')resizeOwn();
+      if(id==='bcols'||id==='brows'||id==='tpl'){const n0=bt.objs.length;snap();cleanBuild();
+        if(n0>bt.objs.length)say('Карту змінено. Об’єктів прибрано, бо для них не стало місця: '+(n0-bt.objs.length)+'. Це можна скасувати.');else bt.hist.pop()}
+      if(id==='wn'){ct.bA=ct.bA.map(b=>b.filter(i=>i<ct.wn)).filter(b=>b.length);ct.whole=[]}
+      if(id==='con'){sel=null;$('last').textContent=T().none}
+      update()});
+    if(f[2]==='num')el.addEventListener('change',()=>{el.value=objOf(f[1])[id]})});
+  RADIOS.forEach(f=>$$('input[name='+f[0]+']').forEach(r=>r.addEventListener('change',()=>{objOf(f[1])[f[0]]=r.value;sel=null;syncUI();update()})));
+  $$('input[name=game]').forEach(r=>r.addEventListener('change',()=>{game=r.value;ls('donat-game',game);sel=null;
+    try{history.replaceState(null,'','#'+game)}catch(e){}
+    syncUI();$('last').textContent=T().none;$('bgNote').textContent=T().bg;draw()}));
+  $('open').addEventListener('click',openMore);
+  $('undo').addEventListener('click',()=>{const b=B().pop();if(b)say(T().back+'<b>'+b.map(nameOf).join(', ')+'</b>');update()});
+  arm($('reset'),()=>true,()=>{setB([]);say(T().all);update()});
+  arm($('regen'),()=>st.ownB.length||st.lines.length,()=>{st.pts=genPts(st.n);st.ownB=[];st.lines=[];sel=null;say('Зірки розкидано заново.');update()});
+  arm($('nolines'),()=>true,()=>{st.lines=[];sel=null;say('Усі лінії прибрано.');update()});
+  $('unline').addEventListener('click',()=>{const l=st.lines.pop();if(l)say('Лінію прибрано: <b>№'+(l[0]+1)+' — №'+(l[1]+1)+'</b>');update()});
   $('fileImg').addEventListener('change',e=>readFile(e.target.files[0],im=>setMain(im,true),$('imgNote')));
+  arm($('newcity'),()=>ct.bA.length>0,()=>{ct.seed=1+Math.floor(Math.random()*99999);ct.bA=[];ct.whole=[];say('Намальовано нове місто.');update()});
+  arm($('autoWin'),()=>ct.pts.length>0,autoPlace);
+  $('nextB').addEventListener('click',nextB);
+  $('fileCity').addEventListener('change',e=>readFile(e.target.files[0],im=>setCity(im,true),$('cityNote')));
+  dropZone($('dropCity'),im=>{if(ct.src==='img')setCity(im,true)},$('cityNote'));
   $('fileBg').addEventListener('change',e=>readFile(e.target.files[0],im=>setBg(im,true),$('bgNote')));
   $('clearBg').addEventListener('click',()=>{$('fileBg').value='';setBg(null,true)});
   dropZone($('dropImg'),im=>setMain(im,true),$('imgNote'));
   dropZone($('dropBg'),im=>setBg(im,true),$('bgNote'));
-  cv.addEventListener('click',e=>{ if(!geom)return;const b=cv.getBoundingClientRect(),k=W/b.width;
-    const c=Math.floor(((e.clientX-b.left)*k-geom.gx)/geom.cw),r=Math.floor(((e.clientY-b.top)*k-geom.gy)/geom.ch);
-    if(c<0||r<0||c>=s.cols||r>=s.rows)return;const id=key(c,r);
-    if(opened().has(id)){s.batches=s.batches.map(x=>x.filter(v=>v!==id)).filter(x=>x.length);say('Знову закрито: <b>'+nameOf(id)+'</b>')}
-    else{s.batches.push([id]);say('Щойно відкрито: <b>'+nameOf(id)+'</b>')}
-    update()});
+  cv.addEventListener('click',e=>{const p=pos(e);
+    if(game==='build'){buildClick(p);return}
+    if(game==='grid'){if(!geom)return;const c=Math.floor((p.x-geom.gx)/geom.cw),r=Math.floor((p.y-geom.gy)/geom.ch);
+      if(c<0||r<0||c>=s.cols||r>=s.rows)return;toggle(key(c,r));return}
+    if(game==='city'){cityClick(p);return}
+    const own=st.smode==='own';if(own&&st.tool==='move')return;
+    const i=near(p);if(i<0)return;
+    if(own&&st.tool==='link'){
+      if(!opened().has(i)){say('Спочатку запаліть зірку <b>№'+(i+1)+'</b>, потім її можна буде з\'єднати.');return}
+      if(sel===null){sel=i;say('Обрано зірку <b>№'+(i+1)+'</b>. Тепер натисніть другу зірку.');draw();return}
+      if(sel===i){sel=null;draw();return}
+      const a=Math.min(sel,i),b=Math.max(sel,i),k=st.lines.findIndex(l=>l[0]===a&&l[1]===b),nm='<b>№'+(a+1)+' — №'+(b+1)+'</b>';
+      if(k>=0){st.lines.splice(k,1);say('Лінію прибрано: '+nm)}else{st.lines.push([a,b]);say('З\'єднано: '+nm)}
+      sel=null;update();return}
+    toggle(i)});
+  cv.addEventListener('pointerdown',e=>{let i=-1;
+    if(game==='stars'&&st.smode==='own'&&st.tool==='move')i=near(pos(e));
+    else if(game==='city'&&ct.src==='img'&&ct.ctoolO==='move')i=nearWin(pos(e),60);
+    else if(game==='build'&&bt.btool==='move'){const q=cellAt(pos(e));if(q){i=objAt(q.c,q.r);dragCell=i>=0?q:null}}
+    if(i<0)return;drag=i;try{cv.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
+  cv.addEventListener('pointermove',e=>{if(drag<0)return;const p=pos(e),c=v=>Math.min(1,Math.max(0,v));
+    if(game==='build'){dragCell=cellAt(p)||dragCell;draw();return}
+    if(game==='city'){const r=cgeom&&cgeom.img;if(!r)return;ct.pts[drag]=[c((p.x-r.x)/r.w),c((p.y-r.y)/r.h)]}
+    else{if(!sgeom)return;st.pts[drag]=[c((p.x-sgeom.ax)/sgeom.aw),c((p.y-sgeom.ay)/sgeom.ah)]}
+    draw()});
+  ['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>{if(drag<0)return;
+    if(game==='build'){const o=bt.objs[drag],q=dragCell;drag=-1;dragCell=null;
+      if(t==='pointerup'&&o&&q&&(q.c!==o.c||q.r!==o.r)){
+        if(objAt(q.c,q.r)>=0)say('Ця клітинка вже зайнята.');else if(!canPut(o.t,q.c,q.r))say(whyNot(o.t,q.c,q.r));
+        else{snap();o.c=q.c;o.r=q.r;say('Пересунуто: <b>'+OBJ[o.t].n+'</b>')}}
+      update();return}
+    drag=-1;persist()}));
+  bindBuild();
   $('save').addEventListener('click',save);
+  $('play').addEventListener('click',()=>record(true));$('rec').addEventListener('click',()=>record(false));
+}
+async function record(preview){
+  if(busy)return;const note=$('recNote');let rec=null,mime='';const chunks=[],D=6;
+  if(!preview){
+    if(!cv.captureStream||!window.MediaRecorder){note.textContent='Цей браузер не вміє записувати відео. Спробуйте Chrome або Safari останньої версії.';return}
+    mime=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm'].find(m=>MediaRecorder.isTypeSupported(m))||'';
+    try{rec=new MediaRecorder(cv.captureStream(30),mime?{mimeType:mime,videoBitsPerSecond:8e6}:{videoBitsPerSecond:8e6})}
+    catch(e){note.textContent='Не вдалося почати запис у цьому браузері.';return}
+    rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};rec.start()}
+  busy=true;sel=null;$('play').disabled=$('rec').disabled=$('save').disabled=true;$('vidLinkP').hidden=true;
+  note.textContent=preview?'Триває перегляд анімації…':'Триває запис, зачекайте 6 секунд і не перемикайте вкладку…';
+  const t0=performance.now();
+  await new Promise(res=>{(function step(){const t=(performance.now()-t0)/1000;if(t>=D){res();return}anim=t;draw();requestAnimationFrame(step)})()});
+  anim=null;draw();
+  if(rec){
+    await new Promise(r=>{rec.onstop=r;rec.stop()});
+    const type=rec.mimeType||mime||'video/webm',ext=type.indexOf('mp4')>=0?'mp4':'webm',blob=new Blob(chunks,{type});
+    const filename=T().file+'-'+opened().size+'-z-'+allIds().length+'.'+ext;
+    const warn=ext==='webm'?' Цей браузер зберігає відео у форматі WebM, який Instagram не приймає: запишіть відео в Safari або в новішому Chrome, щоб отримати MP4.':'';
+    const link=()=>{const u=URL.createObjectURL(blob),a=$('vidLink');a.href=u;a.download=filename;$('vidLinkP').hidden=false;
+      if(!(window.claude&&window.claude.use))a.click();note.textContent='Відео готове: '+filename+'.'+warn};
+    try{const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+      if(!dl)link();else{await dl.save({filename,data:blob});note.textContent='Збережено: '+filename+'.'+warn}}
+    catch(err){if(err&&err.code==='declined')note.textContent='Збереження скасовано.';else link()}
+  }else note.textContent='Так виглядатиме відео. Щоб зберегти його, натисніть «Зберегти відео».';
+  busy=false;$('play').disabled=$('rec').disabled=$('save').disabled=false;
 }
 async function save(){
-  const btn=$('save'),note=$('saveNote');btn.disabled=true;draw();
+  if(busy)return;
+  const btn=$('save'),note=$('saveNote');btn.disabled=true;sel=null;draw();
   const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
-  const filename='donat-sitka-'+opened().size+'-z-'+(s.cols*s.rows)+'.png';
-  const fallback=()=>{const u=URL.createObjectURL(blob);if(!(window.claude&&window.claude.use)){const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();note.textContent='Збережено: '+filename}$('fbImg').src=u;$('fallback').hidden=false};
+  const filename=game==='build'?'pobuduy-misto-'+({story:'9x16',post:'4x5',square:'1x1'})[bt.fmt]+'.png':T().file+'-'+opened().size+'-z-'+allIds().length+'.png';
+  const fallback=()=>{const u=URL.createObjectURL(blob);
+    if(!(window.claude&&window.claude.use)){const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();note.textContent='Збережено: '+filename}
+    $('fbImg').src=u;$('fallback').hidden=false};
   try{
     const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
     if(!dl){fallback()}
@@ -366,12 +935,17 @@ async function save(){
   btn.disabled=false;
 }
 
-load();trimToGrid();bind();
+load();trimToGrid();bind();syncUI();
+$('last').textContent=T().none;$('bgNote').textContent=T().bg;
 setMain(sample(),false);
 if(fromStore(KEY+'-img',im=>{setMain(im,false);$('imgNote').textContent='Показано зображення, яке ви завантажили раніше.'})){}
 else fromStore(OLD+'-img',im=>{setMain(im,false);ls(KEY+'-img',img.toDataURL('image/jpeg',.85));$('imgNote').textContent='Показано зображення, яке ви завантажили раніше.'});
-fromStore(KEY+'-bg',im=>{setBg(im,false);$('bgNote').textContent='Показано фонове зображення, яке ви обрали раніше.'});
-if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load('900 92px Montserrat','ВІДКРИЙ'),document.fonts.load('800 34px Montserrat','ДОНАТ')]).then(draw,()=>{});
+fromStore(KEY+'-bg',im=>setBg(im,false,'grid'));
+fromStore(SKEY+'-bg',im=>setBg(im,false,'stars'));
+fromStore(CKEY+'-bg',im=>setBg(im,false,'city'));
+fromStore(BKEY+'-bg',im=>setBg(im,false,'build'));
+fromStore(CKEY+'-img',im=>{setCity(im,false);$('cityNote').textContent='Показано ілюстрацію, яку ви завантажили раніше.'});
+if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load('900 92px Montserrat','ВІДКРИЙ'),document.fonts.load('800 34px Montserrat','ДОНАТ'),document.fonts.load('700 22px Montserrat','12'),document.fonts.load('800 74px Unbounded','ПОБУДУЙ')]).then(draw,()=>{});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 })();
 </script>
