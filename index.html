@@ -28,8 +28,10 @@ i[data-ic]{display:inline-flex}
 .brand img{width:40px;height:40px}
 .tag{font-size:14px;opacity:.9;padding-left:14px;border-left:1px solid rgba(255,255,255,.25)}
 .beta{background:var(--soft);color:var(--soft-fg);font-size:11px;font-weight:800;border-radius:99px;padding:2px 9px;letter-spacing:.04em}
-.gamepick{margin-left:auto;display:flex;align-items:center;gap:6px;border:1.5px solid rgba(255,255,255,.55);border-radius:99px;padding:0 6px 0 12px;min-width:0}
-.gamepick select{background:transparent;color:var(--deep-fg);border:0;font-weight:700;padding:8px 4px;min-width:0;max-width:100%}
+.gamepick{margin-left:auto;position:relative;display:flex;align-items:center;border:1.5px solid rgba(255,255,255,.55);border-radius:99px;min-width:0}
+.gamepick:has(select:focus-visible){border-color:#fff}
+.gamepick i{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:#fff}
+.gamepick select{appearance:none;-webkit-appearance:none;background:transparent;color:var(--deep-fg);border:0;border-radius:99px;font-weight:700;padding:8px 38px 8px 16px;min-width:0;max-width:100%;outline:none;cursor:pointer}
 .gamepick select option{color:var(--fg);background:var(--panel)}
 .bulb{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--sun);border:1.5px solid var(--sun);border-radius:99px;padding:7px 14px;font-weight:700;cursor:pointer}
 
@@ -134,6 +136,17 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
 .cta:disabled{opacity:.6}
 .cta .sm{display:none}
 .export .btn{border-radius:14px}
+.wlist{display:flex;flex-direction:column;gap:6px}
+.wrow{display:grid;grid-template-columns:24px minmax(0,1fr) 40px 40px 38px;gap:6px;align-items:center}
+.wrow b{text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.wrow input[type=color]{height:38px;padding:2px}
+.wrow .ib{width:38px;height:38px}
+.wrow.hit input[type=text]{border-color:var(--accent);box-shadow:0 0 0 3px var(--soft)}
+.whist{margin:0;padding-left:26px;max-height:190px;overflow:auto;font-variant-numeric:tabular-nums}
+.warnp{color:var(--danger);font-weight:600}
+.swb{display:inline-flex;align-items:center;gap:8px}
+.swb i{display:inline-flex;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.swb i u{width:14px;height:18px;display:block}
 #fallback img{width:160px;border-radius:8px;border:1px solid var(--line)}
 
 /* quick start */
@@ -201,11 +214,12 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
   <div class="brand"><img id="brandLogo" alt="" width="40" height="40"><b>ВОЛОНТЕРИ<br>ПІВНІЧ</b></div>
   <span class="tag">Конструктор донатних інтерактивів</span>
   <span class="beta">Beta</span>
-  <label class="gamepick"><i data-ic="spark"></i>
+  <label class="gamepick">
     <select id="gameSel" aria-label="Обрати гру">
       <option value="grid">Донат-сітка</option>
       <option value="stars">Відкрий зірку</option>
-    </select>
+      <option value="wheel">Колесо завдань</option>
+    </select><i data-ic="chev"></i>
   </label>
   <button class="bulb" id="tourBtn" type="button" title="Швидкий старт"><i data-ic="bulb"></i><span>Швидкий старт</span></button>
 </header>
@@ -216,7 +230,7 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
       <div class="pvbar">
         <span class="fmtl" id="fmtL">Формат сторіз 9:16</span>
         <label class="switch"><input type="checkbox" id="safeT"><span>Безпечні зони</span></label>
-        <button class="ib g-stars" id="tPlay" type="button" title="Переглянути анімацію"><i data-ic="play"></i></button>
+        <button class="ib g-anim" id="tPlay" type="button" title="Переглянути анімацію"><i data-ic="play"></i></button>
         <button class="ib" id="fsBtn" type="button" title="Повноекранний перегляд"><i data-ic="full"></i></button>
       </div>
       <div class="pvmain">
@@ -233,7 +247,7 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
             <div class="sz b">Зона елементів керування<small>залиште вільною</small></div>
           </div>
         </div></div>
-        <div class="tplsw" aria-label="Шаблон фону"><button type="button" id="tplPrev" aria-label="Попередній шаблон">‹</button><span id="tplV">Шаблон 1 з 4</span><button type="button" id="tplNext" aria-label="Наступний шаблон">›</button></div>
+        <div class="tplsw not-wheel" aria-label="Шаблон фону"><button type="button" id="tplPrev" aria-label="Попередній шаблон">‹</button><span id="tplV">Шаблон 1 з 4</span><button type="button" id="tplNext" aria-label="Наступний шаблон">›</button></div>
         </div>
       </div>
       <div class="pvfoot">
@@ -332,6 +346,34 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
           </div>
         </div>
 
+        <div class="g-wheel stack">
+          <div class="row">
+            <label class="field" style="flex:0 1 160px"><span>Кількість секторів (5–25)</span><input type="number" id="wnum" min="5" max="25" value="12"></label>
+            <button class="btn" id="wAdd" type="button">Додати сектор</button>
+          </div>
+          <div class="slot">
+            <h3>Кольори через один сектор</h3>
+            <div class="row">
+              <label class="field"><span>Непарні сектори (1, 3, 5…)</span><input type="color" id="qcO" value="#f6ecc4"></label>
+              <label class="field"><span>Парні сектори (2, 4, 6…)</span><input type="color" id="qcE" value="#1f6b4a"></label>
+            </div>
+            <div class="row">
+              <label class="field"><span>Текст на непарних</span><input type="color" id="qtO" value="#1f6b4a"></label>
+              <label class="field"><span>Текст на парних</span><input type="color" id="qtE" value="#f6ecc4"></label>
+            </div>
+            <p class="note">Зміна одразу застосовується до всіх непарних або всіх парних секторів. Окремий сектор можна перефарбувати в його рядку нижче.</p>
+          </div>
+          <div class="wlist" id="wlist"></div>
+          <p class="note">У кожному рядку: текст завдання, колір сектора, колір тексту й видалення. Сектори завжди ділять коло порівну.</p>
+          <p class="note warnp" id="wWarn" hidden></p>
+          <label class="field"><span>Підписи на колесі</span><select id="lab"><option value="text">Текст завдання</option><option value="num">Номери (зручно, коли секторів багато)</option></select></label>
+          <label class="check"><input type="checkbox" id="showList"> У режимі номерів показувати список завдань під колесом</label>
+          <div class="row">
+            <label class="field"><span>Розмір колеса, %</span><input type="number" id="wsz" min="50" max="100" value="100"></label>
+            <label class="field"><span>Зсув колеса вгору (−) чи вниз (+)</span><input type="number" id="wy" min="-200" max="200" value="0"></label>
+          </div>
+        </div>
+
         <div class="g-build stack">
           <div class="row">
             <label class="field" style="flex:2 1 180px"><span>Шаблон карти</span><select id="tpl"></select></label>
@@ -361,6 +403,16 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
         <label class="field"><span>Текст на плашці (плашка підлаштовується під довжину)</span><input type="text" id="sub" maxlength="80"></label>
         <div class="g-stars"><label class="field m-own"><span>Підпис під сузір'ям</span><input type="text" id="caption" maxlength="60" placeholder="Наприклад: Сузір'я Донатера або Схоже на кита"></label></div>
         <label class="field g-build"><span>Назва карти</span><input type="text" id="mapName" maxlength="40"></label>
+        <div class="g-wheel stack">
+          <div class="row">
+            <label class="field"><span>Розмір заголовка й підпису, %</span><input type="number" id="tsz" min="60" max="130" value="100"></label>
+            <label class="field"><span>Розміщення тексту</span><select id="tal"><option value="center">По центру</option><option value="left">Ліворуч</option></select></label>
+          </div>
+          <div class="row">
+            <label class="field"><span>Розмір тексту на колесі, %</span><input type="number" id="fsz" min="60" max="140" value="100"></label>
+            <label class="field"><span>Товщина тексту на колесі</span><select id="fw"><option value="700">Напівжирний</option><option value="800">Жирний</option><option value="900">Дуже жирний</option></select></label>
+          </div>
+        </div>
         <label class="field"><span>Додатковий текст або посилання внизу (необов'язково)</span><input type="text" id="extra" maxlength="80" placeholder="Наприклад: Посилання на банку в шапці профілю"></label>
         <label class="check"><input type="checkbox" id="counter" checked> Показувати лічильник на зображенні</label>
       </div>
@@ -371,14 +423,34 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
       <div class="accb">
         <div class="row">
           <label class="field"><span>Колір тексту</span><input type="color" id="textc" value="#ffffff"></label>
-          <label class="field"><span>Колір плашки</span><input type="color" id="badge" value="#246b48"></label>
+          <label class="field not-wheel"><span>Колір плашки</span><input type="color" id="badge" value="#246b48"></label>
           <label class="field g-grid"><span>Колір клітинок</span><input type="color" id="cover" value="#d6d4cf"></label>
           <label class="field g-stars"><span>Колір зірок</span><input type="color" id="starc" value="#ffe98a"></label>
           <label class="field g-stars"><span>Колір ліній</span><input type="color" id="linec" value="#ffffff"></label>
           <label class="field g-city"><span>Колір світла у вікнах</span><input type="color" id="winc" value="#ffd76a"></label>
           <label class="field g-city c-auto"><span>Колір будинків</span><input type="color" id="bldc" value="#1a2b1e"></label>
         </div>
-        <div class="slot" id="dropBg">
+        <div class="g-wheel stack">
+          <h3>Готові палітри</h3>
+          <div class="row" id="wPal"></div>
+          <div class="row">
+            <label class="field" style="flex:0 1 90px"><span>Колір А</span><input type="color" id="wcA" value="#f6ecc4"></label>
+            <label class="field" style="flex:0 1 110px"><span>HEX</span><input type="text" id="wcAh" maxlength="7" placeholder="#f6ecc4"></label>
+            <button class="btn" id="wOdd" type="button">Застосувати до непарних секторів</button>
+          </div>
+          <div class="row">
+            <label class="field" style="flex:0 1 90px"><span>Колір Б</span><input type="color" id="wcB" value="#1f6b4a"></label>
+            <label class="field" style="flex:0 1 110px"><span>HEX</span><input type="text" id="wcBh" maxlength="7" placeholder="#1f6b4a"></label>
+            <button class="btn" id="wEven" type="button">Застосувати до парних секторів</button>
+          </div>
+          <div class="row">
+            <label class="field" style="flex:0 1 190px"><span>Колір тексту на секторах</span><input type="color" id="wtc" value="#ffffff"></label>
+            <button class="btn" id="wTcAll" type="button">Застосувати до всіх секторів</button>
+          </div>
+          <div class="row"><label class="field" style="flex:0 1 190px"><span>Колір покажчика</span><input type="color" id="ptc" value="#d62828"></label></div>
+          <p class="note">Колір окремого сектора та його тексту змінюється в списку завдань в «Основних налаштуваннях». Тло в цій грі не змінюється, а логотип стоїть у центрі колеса.</p>
+        </div>
+        <div class="slot not-wheel" id="dropBg">
           <h3>Тло</h3>
           <div class="row">
             <label class="field" style="flex:0 1 110px"><span>Колір</span><input type="color" id="bgc" value="#0d1a0e"></label>
@@ -387,7 +459,7 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
           </div>
           <p class="note" id="bgNote"></p>
         </div>
-        <p class="note">Логотип «Волонтери Північ» завжди внизу посередині. Він автоматично стає білим на темному тлі й чорним на світлому.</p>
+        <p class="note not-wheel">Логотип «Волонтери Північ» завжди внизу посередині. Він автоматично стає білим на темному тлі й чорним на світлому.</p>
       </div>
     </details>
 
@@ -414,6 +486,45 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
           <div class="row">
             <label class="field" style="flex:0 1 180px"><span id="priceL">Донат за клітинку, грн</span><input type="number" id="price" min="1" value="10"></label>
             <button class="btn warn" id="reset" type="button">Закрити всі</button>
+          </div>
+        </div>
+        <div class="g-wheel stack">
+          <h3>Обертання</h3>
+          <div class="row">
+            <button class="btn primary" id="wSpin" type="button">Крутити колесо</button>
+            <button class="btn" id="wUndo" type="button">Скасувати останній результат</button>
+          </div>
+          <p class="last" id="wLast">Колесо ще не крутили.</p>
+          <label class="check"><input type="checkbox" id="excl"> Не повторювати завдання, які вже випадали</label>
+          <div class="slot" id="wFest">
+            <h3>Оголошення результату</h3>
+            <label class="check"><input type="checkbox" id="festive"> Святкове оголошення: затінення, конфеті й плашка із завданням</label>
+            <label class="check"><input type="checkbox" id="resTxt"> Без святкового оголошення показувати завдання текстом під колесом</label>
+            <div class="row">
+              <label class="field"><span>Колір плашки</span><input type="color" id="plc" value="#ffc83d"></label>
+              <label class="field"><span>Колір тексту на плашці</span><input type="color" id="pltc" value="#1b1b1b"></label>
+              <label class="field"><span>Затінення, %</span><input type="number" id="dim" min="0" max="90" value="55"></label>
+            </div>
+            <div class="row">
+              <label class="check" style="flex:0 0 auto"><input type="checkbox" id="conf"> Конфеті</label>
+              <label class="field"><span>Кольори конфеті</span><select id="confc"><option value="brand">Фірмові (зелені й жовті)</option><option value="multi">Різнокольорові</option></select></label>
+            </div>
+          </div>
+          <div class="slot">
+            <h3>Історія результатів</h3>
+            <ol class="whist" id="whist"></ol>
+            <div class="row"><button class="btn warn" id="wClear" type="button">Очистити історію</button></div>
+          </div>
+          <div class="slot">
+            <h3>Прогрес донатів</h3>
+            <label class="check"><input type="checkbox" id="wfin"> Показувати на сторіз і в блоці прогресу</label>
+            <div class="row">
+              <label class="field"><span>Ціль збору, грн</span><input type="number" id="wgoal" min="1" value="50000"></label>
+              <label class="field"><span>Донат за одне обертання, грн</span><input type="number" id="wprice" min="1" value="100"></label>
+              <label class="field"><span>Уже зібрано, грн</span><input type="number" id="wraised" min="0" value="0"></label>
+            </div>
+            <div class="row"><button class="btn" id="wAddDon" type="button">Додати донат до зібраного</button></div>
+            <p class="note">Обертання не додають гроші автоматично: суму ви змінюєте самі або цією кнопкою.</p>
           </div>
         </div>
         <div class="g-build stack">
@@ -455,14 +566,27 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
           <p class="note">Усе зберігається в цьому браузері автоматично. Файл проєкту містить одну гру, ту, що зараз відкрита, разом з її картинками: він потрібен, щоб продовжити на іншому пристрої або мати запасну копію.</p>
           <div class="row">
             <label class="filebtn"><i data-ic="folder"></i>Відкрити проєкт із файлу<input type="file" id="projLoad" accept=".json,application/json" hidden></label>
+            <button class="btn" id="projCopy" type="button">Створити копію (файл із датою)</button>
           </div>
           <p class="note" id="projNote"></p>
         </div>
       </div>
     </details>
 
+        <div class="g-wheel card accb" id="wExp">
+          <h3>Формат експорту</h3>
+          <label class="field"><span>Що зберігає жовта кнопка</span>
+            <select id="xmode">
+              <option value="res">Відео: обертання з результатом (10 с)</option>
+              <option value="loop">Відео: колесо крутиться без зупинки (10 с)</option>
+              <option value="png">Фото: колесо з результатом (PNG)</option>
+            </select>
+          </label>
+          <p class="note" id="wNote">Кнопка ▶ над сторіз показує те саме, що потрапить у файл. Відео й фото з результатом беруть останній результат обертання, новий не вибирається. Під час запису не перемикайте вкладку.</p>
+          <p class="note" id="wVidP" hidden><a id="wVid">Завантажити відео</a></p>
+        </div>
     <div class="export">
-      <button class="cta" id="save" type="button"><i data-ic="down"></i><span id="saveT" class="lg">Експортувати сторіз</span><span class="sm">Зберегти PNG</span></button>
+      <button class="cta" id="save" type="button"><i data-ic="down"></i><span id="saveT" class="lg">Експортувати сторіз</span><span class="sm" id="saveS">Зберегти PNG</span></button>
       <button class="btn" id="projSave" type="button" title="Зберегти проєкт цієї гри у файл"><i data-ic="folder"></i><span>Зберегти проєкт</span></button>
     </div>
     <p class="note" id="saveNote">Прогрес зберігається автоматично.</p>
@@ -476,7 +600,7 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
 <div class="tour" id="tour" hidden role="dialog" aria-label="Швидкий старт">
   <b id="tourH"></b><p id="tourP"></p>
   <div class="row"><small id="tourN"></small>
-    <span style="display:flex;gap:8px"><button class="btn" id="tourX" type="button">Закрити</button><button class="btn" id="tourB" type="button">Назад</button><button class="btn go" id="tourF" type="button">Далі</button></span>
+    <span style="display:flex;gap:8px"><button class="btn" id="tourX" type="button">Пропустити</button><button class="btn" id="tourB" type="button">Назад</button><button class="btn go" id="tourF" type="button">Далі</button></span>
   </div>
 </div>
 
@@ -486,7 +610,7 @@ const $=id=>document.getElementById(id),$$=q=>document.querySelectorAll(q);
 const cv=$('cv'),W=1080,PADX=100,FAM_M='Montserrat, "Arial Black", system-ui, sans-serif',FAM_B='Unbounded, Montserrat, "Arial Black", system-ui, sans-serif';
 let ctx=cv.getContext('2d'),H=1920,FAM=FAM_M,LY={y0:150,ts:92,gap:58,logoZ:116,logoY:1640,bot:1570};
 const ABC={lat:'ABCDEFGHIJKLMNOPQRSTUVWXYZ',ukr:'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЮЯ'};
-const KEY='donat-sitka-v2',OLD='donat-sitka-v1',SKEY='vidkryi-zirku-v1',CKEY='zasvity-misto-v1',BKEY='pobuduy-misto-v1';
+const KEY='donat-sitka-v2',OLD='donat-sitka-v1',SKEY='vidkryi-zirku-v1',CKEY='zasvity-misto-v1',BKEY='pobuduy-misto-v1',WKEY='koleso-zavdan-v1';
 // constellations: star positions projected from catalogue coordinates (east to the left, as seen in the sky)
 const CON={"uma":{"n":"Велика Ведмедиця (Великий Віз)","p":[[9.49,-6.74],[11.34,-1.58],[4.47,2.59],[1.16,-0.54],[-4.2,0.32],[-8.61,0.65],[-13.75,5.3]],"l":[[0,1],[1,2],[2,3],[3,0],[3,4],[4,5],[5,6]]},"umi":{"n":"Мала Ведмедиця","p":[[-0.24,-10.81],[-1.54,-6.96],[-2.06,-2.29],[0.09,2.23],[3.75,5.44],[1.97,8.14],[-1.95,4.14]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]},"cas":{"n":"Кассіопея","p":[[6.43,0.61],[2.61,3.74],[0.33,-0.36],[-3.28,-0.04],[-6.09,-3.97]],"l":[[0,1],[1,2],[2,3],[3,4]]},"ori":{"n":"Оріон","p":[[0.18,-9.72],[-4.84,-7.17],[2.67,-6.08],[0.96,0.6],[-0.1,1.5],[-1.23,2.24],[-2.99,10.08],[5.35,8.6]],"l":[[0,1],[0,2],[1,5],[2,3],[3,4],[4,5],[5,6],[3,7],[6,7]]},"cyg":{"n":"Лебідь (Північний Хрест)","p":[[-5.66,-7.43],[-2.42,-2.14],[2.72,3.04],[8.76,9.96],[-7.65,3.86],[4.37,-7.17]],"l":[[0,1],[1,2],[2,3],[1,4],[1,5]]},"lyr":{"n":"Ліра","p":[[2.24,-2.3],[0.79,-3.16],[0.73,-1.09],[-1.21,-0.4],[-2.21,3.8],[-0.35,3.16]],"l":[[0,1],[1,2],[0,2],[2,3],[3,4],[4,5],[5,2]]},"leo":{"n":"Лев","p":[[5.95,7.43],[6.04,2.57],[2.94,-0.44],[3.63,-4.05],[9.05,-6.96],[10.82,-4.8],[-9.84,-1.41],[-10.19,3.75],[-19.24,4.05]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[2,6],[6,8],[8,7],[7,0],[6,7]]},"sco":{"n":"Скорпіон","p":[[10.55,-13.75],[11.47,-10.68],[11.39,-7.02],[6.28,-7.94],[4.35,-7.16],[2.83,-5.4],[-0.31,0.65],[-0.63,4.42],[-1.11,8.8],[-4.35,9.85],[-9.08,10.12],[-11.45,7.48],[-10.59,6.2],[-9.04,4.0]],"l":[[0,1],[1,2],[1,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13]]},"gem":{"n":"Близнюки","p":[[-6.92,-7.38],[-9.56,-3.65],[-1.9,-5.48],[4.19,-0.39],[9.18,1.99],[11.11,1.86],[-7.52,-2.34],[-4.11,2.77],[-0.39,4.24],[6.0,8.38]],"l":[[0,1],[0,2],[2,3],[3,4],[4,5],[1,6],[6,7],[7,8],[8,9]]},"boo":{"n":"Волопас","p":[[4.72,10.61],[-2.17,2.64],[-8.47,-3.99],[-5.17,-10.98],[0.63,-8.64],[0.74,-0.64],[9.91,11.2]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,6]]},"crb":{"n":"Північна Корона","p":[[2.34,-3.32],[3.51,-1.1],[2.05,1.34],[0.26,1.77],[-1.28,2.0],[-3.06,1.15],[-3.82,-1.85]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]]},"peg":{"n":"Пегас","p":[[-1.77,3.25],[-1.43,-9.71],[-16.18,-12.0],[-18.94,2.46],[3.96,7.66],[12.17,12.32],[18.84,8.12],[3.18,-11.97]],"l":[[0,1],[1,2],[2,3],[3,0],[0,4],[4,5],[5,6],[1,7]]},"tau":{"n":"Телець","p":[[9.94,6.25],[5.07,3.22],[4.26,1.32],[2.87,-0.3],[-10.24,-10.29],[1.16,2.4],[-13.5,-2.84]],"l":[[0,1],[1,2],[2,3],[3,4],[1,5],[5,6]]},"and":{"n":"Андромеда","p":[[10.62,6.97],[3.65,5.65],[-2.75,0.89],[-12.72,-7.07],[-0.11,-1.94],[1.21,-4.54]],"l":[[0,1],[1,2],[2,3],[2,4],[4,5]]},"cep":{"n":"Цефей","p":[[5.79,4.3],[3.34,-3.39],[-4.83,-11.25],[-4.1,0.91],[-0.26,9.33]],"l":[[0,1],[1,2],[2,3],[3,4],[4,0],[1,3]]},"aur":{"n":"Візничий","p":[[2.53,-7.96],[-5.07,-7.06],[-5.7,0.72],[1.08,9.62],[7.19,4.7]],"l":[[0,1],[1,2],[2,3],[3,4],[4,0]]},"ari":{"n":"Овен","p":[[-8.8,-4.81],[0.82,-0.66],[3.78,1.95],[4.09,3.47]],"l":[[0,1],[1,2],[2,3]]},"cnc":{"n":"Рак","p":[[-1.1,-10.98],[-0.35,-3.56],[-0.7,-0.24],[-4.13,6.04],[6.33,8.73]],"l":[[0,1],[1,2],[2,3],[2,4]]},"vir":{"n":"Діва","p":[[22.49,-3.14],[14.4,-0.56],[8.74,0.22],[5.2,-4.68],[3.57,-12.42],[1.59,4.3],[-2.21,10.02],[-4.6,-0.65],[-11.48,-2.82],[-15.23,4.97],[-22.74,4.85]],"l":[[0,1],[1,2],[2,3],[3,4],[2,5],[5,6],[3,7],[7,8],[7,9],[9,10]]},"lib":{"n":"Терези","p":[[6.24,-2.64],[-0.06,-9.48],[-4.56,-3.95],[2.88,6.57],[-4.54,9.54]],"l":[[0,1],[1,2],[2,0],[0,3],[2,4]]},"sgr":{"n":"Стрілець","p":[[7.17,1.72],[3.89,0.95],[3.05,5.49],[2.48,-3.52],[-1.51,-1.96],[-5.16,1.05],[-3.67,-2.6],[-6.23,-1.11]],"l":[[0,1],[0,2],[1,2],[2,5],[5,4],[4,1],[1,3],[3,4],[4,6],[6,7],[7,5]]},"cap":{"n":"Козоріг","p":[[11.5,-6.14],[10.61,-3.88],[4.16,6.46],[2.83,8.1],[-5.18,3.6],[-10.37,-2.51],[-8.63,-2.06],[-4.3,-2.03],[-0.38,-1.68]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,1]]},"aqr":{"n":"Водолій","p":[[22.37,5.84],[10.64,1.29],[2.03,-4.07],[-1.96,-2.99],[-3.75,-4.37],[-5.4,-4.27],[-2.87,-5.78],[-9.71,3.31],[-10.12,11.85]],"l":[[0,1],[1,2],[2,3],[3,4],[4,5],[4,6],[5,7],[7,8]]},"psc":{"n":"Риби","p":[[-6.58,-20.77],[-8.49,-17.74],[-7.22,-14.73],[-11.87,-5.34],[-15.75,0.85],[-20.69,7.46],[-14.87,4.69],[-11.89,4.09],[-4.92,2.44],[-1.37,2.76],[11.04,3.37],[16.17,4.51],[19.4,3.62],[22.68,6.86],[20.03,9.1],[15.81,8.57]],"l":[[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,11]]}};
 const TXT={
@@ -495,6 +619,7 @@ const TXT={
  stars:{h:'Запалити зірки',btn:'Запалити',none:'Ще жодної зірки не запалено.',just:'Щойно запалено: ',back:'Знову погашено: ',reset:'Погасити всі',all:'Усі зірки погашено.',
    stat:'зірок запалено',price:'Донат за зірку, грн',nomore:' (більше незапалених зірок немає)',file:'vidkryi-zirku',bg:'Без зображення тло буде нічним небом обраного кольору. Зображення розтягується на весь кадр 9:16.'},
  build:{h:'',btn:'',none:'',just:'',back:'',reset:'',all:'',stat:'об’єктів на карті',price:'',nomore:'',file:'pobuduy-misto',bg:'Без зображення тло буде суцільним кольором. Зображення розтягується на весь кадр.'},
+ wheel:{h:'',btn:'',none:'',just:'',back:'',reset:'',all:'',stat:'обертань',price:'',nomore:'',file:'koleso-zavdan',bg:''},
  city:{h:'Засвітити вікна',btn:'Засвітити',none:'Ще жодного вікна не засвічено.',just:'Щойно засвічено вікна: ',back:'Знову погашено: ',reset:'Погасити всі',all:'Усі вікна погашено.',
    stat:'вікон засвічено',price:'Донат за вікно, грн',nomore:' (більше темних вікон немає)',file:'zasvity-misto',bg:'Без зображення тло буде нічним небом обраного кольору. Зображення розтягується на весь кадр 9:16.'}};
 let game='grid';
@@ -509,20 +634,27 @@ let ct={src:'auto',wn:60,seed:7,bprice:200,ctoolA:'light',ctoolO:'light',pts:[],
 let bt={tpl:'river',seed:5,bcols:9,brows:12,cell:90,mapName:'МІСТО ДОБРИХ СПРАВ',objs:[],hist:[],sel:'house',btool:'place',bcount:3,brand:'sel',
   finOn:false,goal:50000,raised:0,fmt:'story',mode:'seq',count:1,price:100,
   title:'ПОБУДУЙ МІСТО!',sub:'ДОНАТ ВІД 100 ГРН = 1 ОБ’ЄКТ',extra:'',counter:true,bgc:'#0d1a0e',textc:'#ffffff',badge:'#246b48'};
+let wh={items:['Одягни щось навиворіт','Намалюй портрет донатора','Відвідай нове місце','Зніми пародію на рекламу','Зроби донат іншому збору','Проведи годину без телефону','Виконай завдання від донатора','Зроби 20 присідань','Заспівай улюблену пісню','Пробіжи 2 кілометри','Подвой наступний донат','Спробуй незвичне поєднання продуктів'].map((t,i)=>({t,c:i%2?'#1f6b4a':'#f6ecc4',tc:i%2?'#f6ecc4':'#1f6b4a'})),
+  wnum:12,lab:'text',showList:true,fsz:100,fw:'800',wsz:100,wy:0,ptc:'#d62828',tsz:100,tal:'center',wcA:'#f6ecc4',wcB:'#1f6b4a',wtc:'#ffffff',
+  festive:true,resTxt:true,plc:'#ffc83d',pltc:'#1b1b1b',conf:true,confc:'brand',dim:55,excl:false,xmode:'res',hist:[],res:null,rot:0,from:0,turn:0,
+  wfin:false,wgoal:50000,wprice:100,wraised:0,mode:'seq',count:1,price:100,title:'КОЛЕСО ЗАВДАНЬ',sub:'За кожен донат кручу колесо та виконую завдання!',extra:'',counter:false,bgc:'#ece8d6',textc:'#141414',badge:'#246b48'};
 let bgeom=null,terCache=null,dragCell=null;
 let cimg=null,cgeom=null,cityCache=null;
-let img=null,bg={grid:null,stars:null,city:null,build:null},logo=null,geom=null,sgeom=null,sel=null,drag=-1,anim=null,busy=false,exporting=false;
-const S=()=>game==='grid'?s:game==='stars'?st:game==='city'?ct:bt,T=()=>TXT[game],GK=g=>g==='grid'?KEY:g==='stars'?SKEY:g==='city'?CKEY:BKEY;
+let img=null,bg={grid:null,stars:null,city:null,build:null,wheel:null},logo=null,geom=null,sgeom=null,sel=null,drag=-1,anim=null,busy=false,exporting=false;
+const S=()=>game==='grid'?s:game==='stars'?st:game==='city'?ct:game==='wheel'?wh:bt,T=()=>TXT[game],GK=g=>g==='grid'?KEY:g==='stars'?SKEY:g==='city'?CKEY:g==='wheel'?WKEY:BKEY;
 // [id, scope (c = current game, g = grid, s = stars), type, min, max]
 const FIELDS=[['count','c','num',1,375],['price','c','num',1,1e7],['counter','c','check'],['title','c','val'],['sub','c','val'],['extra','c','val'],['bgc','c','val'],['textc','c','val'],['badge','c','val'],
   ['cols','g','num',2,15],['rows','g','num',2,25],['axes','g','check'],['names','g','check'],['abc','g','val'],['fit','g','val'],['cover','g','val'],
   ['n','s','num',5,80],['showName','s','check'],['nums','s','check'],['hl','s','check'],['con','s','val'],['starc','s','val'],['linec','s','val'],['caption','s','val'],['fxTw','s','check'],['fxCol','s','check'],['fxShoot','s','check'],
   ['wn','k','num',5,300],['bprice','k','num',1,1e7],['wsize','k','num',8,60],['showOff','k','check'],['winc','k','val'],['bldc','k','val'],
   ['tpl','b','val'],['bcols','b','num',5,20],['brows','b','num',5,26],['cell','b','num',30,120],['mapName','b','val'],['fmt','b','val'],
-  ['bcount','b','num',1,50],['brand','b','val'],['finOn','b','check'],['goal','b','num',1,1e9],['raised','b','num',0,1e9]];
-const LAZY=['cols','rows','n','wn','bcols','brows'];// sizes apply when the field is left, so half-typed numbers do not drop progress
+  ['bcount','b','num',1,50],['brand','b','val'],['finOn','b','check'],['goal','b','num',1,1e9],['raised','b','num',0,1e9],
+  ['wnum','w','num',5,25],['lab','w','val'],['showList','w','check'],['fsz','w','num',60,140],['fw','w','val'],['wsz','w','num',50,100],['wy','w','num',-200,200],['ptc','w','val'],['tsz','w','num',60,130],['tal','w','val'],
+  ['wcA','w','val'],['wcB','w','val'],['wtc','w','val'],['festive','w','check'],['resTxt','w','check'],['plc','w','val'],['pltc','w','val'],['conf','w','check'],['confc','w','val'],['dim','w','num',0,90],
+  ['excl','w','check'],['xmode','w','val'],['wfin','w','check'],['wgoal','w','num',1,1e9],['wprice','w','num',1,1e7],['wraised','w','num',0,1e9]];
+const LAZY=['cols','rows','n','wn','bcols','brows','wnum'];// sizes apply when the field is left, so half-typed numbers do not drop progress
 const RADIOS=[['mode','c'],['smode','s'],['tool','s'],['src','k'],['ctoolA','k'],['ctoolO','k'],['btool','b']];
-const objOf=sc=>sc==='c'?S():sc==='g'?s:sc==='s'?st:sc==='k'?ct:bt;
+const objOf=sc=>sc==='c'?S():sc==='g'?s:sc==='s'?st:sc==='k'?ct:sc==='w'?wh:bt;
 
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);return true}catch(e){return false}}
 function load(){
@@ -538,10 +670,11 @@ function load(){
   try{const j=JSON.parse(ls(CKEY)||'null');if(j)Object.assign(ct,j)}catch(e){}
   ['pts','whole','bA','bO'].forEach(k=>{if(!Array.isArray(ct[k]))ct[k]=[]});
   try{const j=JSON.parse(ls(BKEY)||'null');if(j)Object.assign(bt,j)}catch(e){}
+  try{const j=JSON.parse(ls(WKEY)||'null');if(j)Object.assign(wh,j)}catch(e){}
   cleanBuild();
   const h=location.hash.slice(1),g0=TXT[h]?h:ls('donat-game');game=TXT[g0]?g0:'grid';
 }
-function persist(){ls(KEY,JSON.stringify(s));ls(SKEY,JSON.stringify(st));ls(CKEY,JSON.stringify(ct));ls(BKEY,JSON.stringify(bt))}
+function persist(){ls(KEY,JSON.stringify(s));ls(SKEY,JSON.stringify(st));ls(CKEY,JSON.stringify(ct));ls(BKEY,JSON.stringify(bt));ls(WKEY,JSON.stringify(wh))}
 
 function sample(){
   const c=document.createElement('canvas');c.width=900;c.height=1500;const x=c.getContext('2d');
@@ -590,16 +723,16 @@ function drawLogo(){
 
 // ---- progress, shared by both games ----
 const key=(c,r)=>c+':'+r;
-const B=()=>game==='build'?[]:game==='grid'?s.batches:game==='city'?(ct.src==='auto'?ct.bA:ct.bO):st.smode==='real'?(st.prog[st.con]||(st.prog[st.con]=[])):st.ownB;
+const B=()=>game==='build'||game==='wheel'?[]:game==='grid'?s.batches:game==='city'?(ct.src==='auto'?ct.bA:ct.bO):st.smode==='real'?(st.prog[st.con]||(st.prog[st.con]=[])):st.ownB;
 function setB(v){if(game==='grid')s.batches=v;else if(game==='city'){if(ct.src==='auto')ct.bA=v;else ct.bO=v}else if(st.smode==='real')st.prog[st.con]=v;else st.ownB=v}
 const opened=()=>new Set(B().flat());
 function allIds(){
   if(game==='grid'){const a=[];for(let r=0;r<s.rows;r++)for(let c=0;c<s.cols;c++)a.push(key(c,r));return a}
-  if(game==='build')return [];
+  if(game==='build'||game==='wheel')return [];
   if(game==='city')return Array.from({length:ct.src==='img'?ct.pts.length:cityCache?cityCache.wins.length:ct.wn},(_,i)=>i);
   return Array.from({length:st.smode==='real'?CON[st.con].p.length:st.n},(_,i)=>i)}
 function nameOf(id){if(game!=='grid')return '№'+(id+1);const[c,r]=id.split(':').map(Number);return (ABC[s.abc][c]||'?')+(r+1)}
-function say(t){$('last').innerHTML=t;$('bLast').innerHTML=t}
+function say(t){$('last').innerHTML=t;$('bLast').innerHTML=t;$('wLast').innerHTML=t}
 function openMore(){
   const op=opened(),closed=allIds().filter(k=>!op.has(k));if(!closed.length)return;
   if(S().mode==='rnd')for(let i=closed.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[closed[i],closed[j]]=[closed[j],closed[i]]}
@@ -654,6 +787,7 @@ function draw(){
   H=game==='build'?({story:1920,post:1350,square:1080})[bt.fmt]||1920:1920;
   if(cv.height!==H){cv.height=H;cv.style.aspectRatio=W+' / '+H;fmtUI()}
   LY=H<1900?{y0:64,ts:58,gap:30,logoZ:72,logoY:H-98,bot:H-120}:{y0:235,ts:80,gap:52,logoZ:92,logoY:H-306,bot:H-346};
+  if(game==='wheel'){drawWheelStory();return}
   ctx.fillStyle=g.bgc;ctx.fillRect(0,0,W,H);
   const bT=g.bgT||0,bi=bT===4?bg[game]:bT>0?TB[bT-1]:null,hasBg=!!(bi&&bi.width);if(hasBg)cover(bi,0,0,W,H);if(game==='stars'||(game==='city'&&!hasBg))dust(tc);
   drawLogo();
@@ -926,8 +1060,8 @@ function setCity(src,isUser){cimg=shrink(src,1600);
     :'Ілюстрацію завантажено. Після перезавантаження сторінки її треба буде обрати знову.';
   draw()}
 // undo / redo: one history per game, tracking only progress (not texts or colours)
-const PK={grid:['batches'],stars:['prog','ownB','lines','pts','n'],city:['bA','bO','whole','pts'],build:['objs']},UN={grid:[],stars:[],city:[],build:[]},RE={grid:[],stars:[],city:[],build:[]},lastSnap={};
-const stOf=g=>g==='grid'?s:g==='stars'?st:g==='city'?ct:bt,snapOf=g=>JSON.stringify(PK[g].map(k=>stOf(g)[k]));
+const PK={grid:['batches'],stars:['prog','ownB','lines','pts','n'],city:['bA','bO','whole','pts'],build:['objs'],wheel:['hist','res','rot','from','turn']},UN={grid:[],stars:[],city:[],build:[],wheel:[]},RE={grid:[],stars:[],city:[],build:[],wheel:[]},lastSnap={};
+const stOf=g=>g==='grid'?s:g==='stars'?st:g==='city'?ct:g==='wheel'?wh:bt,snapOf=g=>JSON.stringify(PK[g].map(k=>stOf(g)[k]));
 function resetHist(){Object.keys(PK).forEach(g=>{UN[g]=[];RE[g]=[];lastSnap[g]=snapOf(g)})}
 function update(){const c=snapOf(game);if(lastSnap[game]!==undefined&&c!==lastSnap[game]){UN[game].push(lastSnap[game]);if(UN[game].length>60)UN[game].shift();RE[game]=[]}
   lastSnap[game]=c;persist();draw()}
@@ -936,6 +1070,7 @@ function stepHist(from,to,msg){if(!from[game].length)return;to[game].push(snapOf
 
 // ---- interface ----
 function hintText(){const t=getTool();
+  if(game==='wheel')return 'Натисніть на сектор колеса, щоб перейти до його завдання в списку.';
   if(game==='build')return t==='move'?'Перетягніть об’єкт на вільну клітинку карти.':t==='del'?'Натисніть на об’єкт на карті, щоб прибрати його.':'Оберіть об’єкт у бібліотеці й натисніть на клітинку карти.';
   if(game==='grid')return 'Натисніть на клітинку, щоб відкрити або закрити її вручну.';
   if(game==='stars'){
@@ -951,7 +1086,7 @@ function hintText(){const t=getTool();
   return 'Натисніть на вікно, щоб засвітити або погасити його вручну.'}
 function syncUI(){
   const t=T();
-  $$('.g-grid').forEach(e=>e.hidden=game!=='grid');$$('.g-stars').forEach(e=>e.hidden=game!=='stars');$$('.g-city').forEach(e=>e.hidden=game!=='city');$$('.g-build').forEach(e=>e.hidden=game!=='build');$$('.not-build').forEach(e=>e.hidden=game==='build');
+  $$('.g-grid').forEach(e=>e.hidden=game!=='grid');$$('.g-stars').forEach(e=>e.hidden=game!=='stars');$$('.g-city').forEach(e=>e.hidden=game!=='city');$$('.g-build').forEach(e=>e.hidden=game!=='build');$$('.not-build').forEach(e=>e.hidden=game==='build'||game==='wheel');$$('.g-wheel').forEach(e=>e.hidden=game!=='wheel');$$('.not-wheel').forEach(e=>e.hidden=game==='wheel');$$('.g-anim').forEach(e=>e.hidden=game!=='stars'&&game!=='wheel');if(game==='wheel')wRenderList();
   $$('#pal button').forEach(b=>b.classList.toggle('on',b.dataset.k===bt.sel));
   $$('.c-auto').forEach(e=>e.hidden=game!=='city'||ct.src!=='auto');$$('.c-own').forEach(e=>e.hidden=game!=='city'||ct.src!=='img');
   $$('.m-real').forEach(e=>e.hidden=st.smode!=='real');$$('.m-own').forEach(e=>e.hidden=st.smode!=='own');
@@ -981,6 +1116,8 @@ function bind(){
       else o[id]=f[2]==='check'?el.checked:el.value;
       if(id==='cols'||id==='rows')trimToGrid();
       if(id==='n')resizeOwn();
+      if(id==='wnum'){wResize();wRenderList()}
+      if(id==='xmode')fmtUI();
       if(id==='bcols'||id==='brows'||id==='tpl'){const n0=bt.objs.length;snap();cleanBuild();
         if(n0>bt.objs.length)say('Карту змінено. Об’єктів прибрано, бо для них не стало місця: '+(n0-bt.objs.length)+'. Це можна скасувати.');else bt.hist.pop()}
       if(id==='wn'){ct.bA=ct.bA.map(b=>b.filter(i=>i<ct.wn)).filter(b=>b.length);ct.whole=[]}
@@ -1008,6 +1145,7 @@ function bind(){
   dropZone($('dropBg'),im=>setBg(im,true),$('bgNote'));
   cv.addEventListener('click',e=>{const p=pos(e);
     if(game==='build'){buildClick(p);return}
+    if(game==='wheel'){wClick(p);return}
     if(game==='grid'){if(!geom)return;const c=Math.floor((p.x-geom.gx)/geom.cw),r=Math.floor((p.y-geom.gy)/geom.ch);
       if(c<0||r<0||c>=s.cols||r>=s.rows)return;toggle(key(c,r));return}
     if(game==='city'){cityClick(p);return}
@@ -1051,15 +1189,16 @@ function bind(){
   $('rec').addEventListener('click',()=>record(false));bindShell();
 }
 async function record(preview){
-  if(busy)return;const note=$('recNote');let rec=null,mime='';const chunks=[],D=6;
+  if(busy)return;const wl=game==='wheel',note=wl?$('wNote'):$('recNote'),lp=wl?$('wVidP'):$('vidLinkP'),la=wl?$('wVid'):$('vidLink');let rec=null,mime='';const chunks=[],D=wl?10:6;
+  if(wl&&wAnim==='res'&&wh.res==null){anim=null;note.textContent='Спочатку натисніть «Крутити колесо», щоб зафіксувати результат.';$('saveNote').textContent=note.textContent;$('secProg').open=true;return}
   if(!preview){
     if(!cv.captureStream||!window.MediaRecorder){note.textContent='Цей браузер не вміє записувати відео. Спробуйте Chrome або Safari останньої версії.';return}
     mime=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm'].find(m=>MediaRecorder.isTypeSupported(m))||'';
     try{rec=new MediaRecorder(cv.captureStream(30),mime?{mimeType:mime,videoBitsPerSecond:8e6}:{videoBitsPerSecond:8e6})}
     catch(e){note.textContent='Не вдалося почати запис у цьому браузері.';return}
     rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};rec.start()}
-  busy=true;sel=null;$('rec').disabled=$('save').disabled=true;$('tPlay').disabled=!preview;$('vidLinkP').hidden=true;pv.on=preview;pv.paused=false;pv.stop=false;playIcon();
-  note.textContent=preview?'Триває перегляд анімації…':'Триває запис, зачекайте 6 секунд і не перемикайте вкладку…';
+  busy=true;sel=null;$('rec').disabled=$('save').disabled=true;$('tPlay').disabled=!preview;lp.hidden=true;pv.on=preview;pv.paused=false;pv.stop=false;playIcon();
+  note.textContent=preview?'Триває перегляд анімації…':'Триває запис, зачекайте '+D+' секунд і не перемикайте вкладку…';if(!preview)$('saveNote').textContent=note.textContent;
   let t=0,last=performance.now();
   await new Promise(res=>{(function step(){const now=performance.now();if(!(preview&&pv.paused))t+=(now-last)/1000;last=now;
     if(t>=D||(preview&&pv.stop)){res();return}anim=t;draw();requestAnimationFrame(step)})()});
@@ -1067,21 +1206,24 @@ async function record(preview){
   if(rec){
     await new Promise(r=>{rec.onstop=r;rec.stop()});
     const type=rec.mimeType||mime||'video/webm',ext=type.indexOf('mp4')>=0?'mp4':'webm',blob=new Blob(chunks,{type});
-    const filename=T().file+'-'+opened().size+'-z-'+allIds().length+'.'+ext;
+    const filename=(wl?'koleso-zavdan-'+(wAnim==='loop'?'obertannya':'rezultat'):T().file+'-'+opened().size+'-z-'+allIds().length)+'.'+ext;
     const warn=ext==='webm'?' Цей браузер зберігає відео у форматі WebM, який Instagram не приймає: запишіть відео в Safari або в новішому Chrome, щоб отримати MP4.':'';
-    const link=()=>{const u=URL.createObjectURL(blob),a=$('vidLink');a.href=u;a.download=filename;$('vidLinkP').hidden=false;
+    const link=()=>{const u=URL.createObjectURL(blob),a=la;a.href=u;a.download=filename;lp.hidden=false;
       if(!(window.claude&&window.claude.use))a.click();note.textContent='Відео готове: '+filename+'.'+warn};
     try{const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
       if(!dl)link();else{await dl.save({filename,data:blob});note.textContent='Збережено: '+filename+'.'+warn}}
     catch(err){if(err&&err.code==='declined')note.textContent='Збереження скасовано.';else link()}
-  }else note.textContent='Так виглядатиме відео. Щоб зберегти його, натисніть «Зберегти відео».';
+    if(wl)$('saveNote').textContent=note.textContent;
+  }else note.textContent=wl?'Перегляд завершено. Так виглядатиме файл.':'Так виглядатиме відео. Щоб зберегти його, натисніть «Зберегти відео».';
   busy=false;$('tPlay').disabled=$('rec').disabled=$('save').disabled=false;
 }
 async function save(){
   if(busy)return;
+  if(game==='wheel'){if(wh.xmode!=='png'){wAnim=wh.xmode==='loop'?'loop':'res';return record(false)}
+    if(wh.res==null){$('saveNote').textContent='Спочатку натисніть «Крутити колесо», щоб зафіксувати результат.';$('secProg').open=true;return}}
   const btn=$('save'),note=$('saveNote');btn.disabled=true;sel=null;exporting=true;draw();
   const blob=await new Promise(r=>cv.toBlob(r,'image/png'));exporting=false;draw();
-  const filename=game==='build'?'pobuduy-misto-'+({story:'9x16',post:'4x5',square:'1x1'})[bt.fmt]+'.png':T().file+'-'+opened().size+'-z-'+allIds().length+'.png';
+  const filename=game==='wheel'?'koleso-zavdan-rezultat.png':game==='build'?'pobuduy-misto-'+({story:'9x16',post:'4x5',square:'1x1'})[bt.fmt]+'.png':T().file+'-'+opened().size+'-z-'+allIds().length+'.png';
   const fallback=()=>{const u=URL.createObjectURL(blob);
     if(!(window.claude&&window.claude.use)){const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();note.textContent='Збережено: '+filename}
     $('fbImg').src=u;$('fallback').hidden=false};
@@ -1114,6 +1256,7 @@ const svg=n=>'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke
 const pv={on:false,paused:false,stop:false};
 function playIcon(){const b=$('tPlay');b.innerHTML=svg(pv.on&&!pv.paused?'pause':'play');b.title=pv.on?(pv.paused?'Продовжити анімацію':'Пауза'):'Переглянути анімацію';b.setAttribute('aria-pressed',pv.on?'true':'false')}
 function toolList(){
+  if(game==='wheel')return [['sel','ptr','Натисніть на сектор, щоб перейти до його рядка в списку']];
   if(game==='grid')return [['sel','ptr','Відкрити або закрити клітинку']];
   if(game==='stars')return st.smode==='real'?[['sel','ptr','Запалити або погасити зірку']]
     :[['sel','ptr','Запалити або погасити зірку'],['add','star','Додати зірку'],['link','link','З’єднати зірки лінією'],['move','move','Пересунути зірку'],['del','trash','Видалити зірку']];
@@ -1121,7 +1264,7 @@ function toolList(){
     :[['sel','ptr','Засвітити або погасити вікно'],['add','plus','Додати вікно'],['move','move','Пересунути вікно'],['del','trash','Прибрати вікно']];
   return [['add','plus','Поставити обраний об’єкт'],['move','move','Пересунути об’єкт'],['del','trash','Видалити об’єкт']]}
 function getTool(){
-  if(game==='grid')return 'sel';
+  if(game==='grid'||game==='wheel')return 'sel';
   if(game==='stars')return st.smode==='real'||st.tool==='light'?'sel':st.tool;
   if(game==='city')return ct.src==='auto'?(ct.ctoolA==='bld'?'bld':'sel'):ct.ctoolO==='light'?'sel':ct.ctoolO;
   return bt.btool==='place'?'add':bt.btool}
@@ -1137,8 +1280,9 @@ function progUI(k){$('pWrap').hidden=k===null;if(k!==null){const p=Math.round(k*
   $('tUndo').disabled=!UN[game].length;$('tRedo').disabled=!RE[game].length}
 function fmtUI(){const story=H===1920;
   $('fmtL').textContent=story?'Формат сторіз 9:16':H===1350?'Формат допису 4:5':'Квадрат 1:1';
-  $('saveT').textContent='Експортувати '+(story?'сторіз':'зображення');$('moreSub').textContent=game==='stars'?'Анімація, копія проєкту':'Копія проєкту';
-  $('sumL').textContent=game==='build'?'зібрано':'зібрано щонайменше';
+  const wv=game==='wheel'&&wh.xmode!=='png';$('saveT').textContent=game==='wheel'?(wv?'Експортувати відео':'Експортувати фото'):'Експортувати '+(story?'сторіз':'зображення');$('saveS').textContent=wv?'Зберегти відео':'Зберегти PNG';
+  $('moreSub').textContent=game==='stars'?'Анімація, копія проєкту':'Копія проєкту';
+  $('sumL').textContent=game==='build'||game==='wheel'?'зібрано':'зібрано щонайменше';
   tplUI();$('safe').hidden=!($('safeT').checked&&story);$('pv').style.setProperty('--ar',W/H);
   document.documentElement.style.setProperty('--stickH',(innerWidth<=860?$('stick').offsetHeight:0)+'px')}
 function sane(){
@@ -1146,17 +1290,20 @@ function sane(){
   if(st.pts.length<st.n)st.pts=genPts(st.n,st.pts);
   ['pts','whole','bA','bO'].forEach(k=>{if(!Array.isArray(ct[k]))ct[k]=[]});if(!Array.isArray(s.batches))s.batches=[];
   if(ct.ctoolO==='edit')ct.ctoolO='add';if(!gameOk(game))game='grid';
+  if(!Array.isArray(wh.items))wh.items=[];wh.items=wh.items.filter(it=>it&&typeof it.t==='string').slice(0,25).map(it=>({t:it.t,c:/^#[0-9a-f]{6}$/i.test(it.c)?it.c:'#1f6b4a',tc:/^#[0-9a-f]{6}$/i.test(it.tc)?it.tc:'#ffffff'}));
+  while(wh.items.length<5)wh.items.push(wNew(wh.items.length));wh.wnum=wh.items.length;
+  if(!Array.isArray(wh.hist))wh.hist=[];wh.hist=wh.hist.filter(h=>h&&typeof h.t==='string');if(wh.res!=null&&!wh.items[wh.res])wh.res=null;wHistKey='';wfc={};
   terCache=null;cityCache=null;cleanBuild();bt.hist=[];trimToGrid()}
 function loadImages(){
   if(!fromStore(KEY+'-img',im=>{setMain(im,false);$('imgNote').textContent='Показано зображення, яке ви завантажили раніше.'}))
     fromStore(OLD+'-img',im=>{setMain(im,false);ls(KEY+'-img',img.toDataURL('image/jpeg',.85));$('imgNote').textContent='Показано зображення, яке ви завантажили раніше.'});
   ['grid','stars','city','build'].forEach(g=>fromStore(GK(g)+'-bg',im=>setBg(im,false,g)));
   fromStore(CKEY+'-img',im=>{setCity(im,false);$('cityNote').textContent='Показано ілюстрацію, яку ви завантажили раніше.'})}
-const GIM={grid:[KEY+'-img',KEY+'-bg'],stars:[SKEY+'-bg'],city:[CKEY+'-bg',CKEY+'-img'],build:[BKEY+'-bg']};
+const GIM={grid:[KEY+'-img',KEY+'-bg'],stars:[SKEY+'-bg'],city:[CKEY+'-bg',CKEY+'-img'],build:[BKEY+'-bg'],wheel:[]};
 const gameOk=g=>!!TXT[g]&&!!document.querySelector('#gameSel option[value="'+g+'"]');
 // one project file = one game
-function projSave(){const im={};GIM[game].forEach(k=>{const v=ls(k);if(v)im[k]=v});
-  giveFile(new Blob([JSON.stringify({app:'interaktyvy',v:3,game,data:S(),im})],{type:'application/json'}),T().file+'-proekt.json',$('saveNote'))}
+function projSave(sfx){sfx=typeof sfx==='string'?sfx:'';const im={};GIM[game].forEach(k=>{const v=ls(k);if(v)im[k]=v});
+  giveFile(new Blob([JSON.stringify({app:'interaktyvy',v:3,game,data:S(),im})],{type:'application/json'}),T().file+'-proekt'+sfx+'.json',$('saveNote'))}
 function projOpen(text){const n=$('projNote');
   try{const j=JSON.parse(text);let g;
     if(j&&j.app==='interaktyvy'&&j.v===3&&j.data&&gameOk(j.game))g=j.game;
@@ -1165,7 +1312,7 @@ function projOpen(text){const n=$('projNote');
     else throw 0;
     game=g;Object.assign(stOf(g),j.data);
     GIM[g].forEach(k=>{ls(k,null);const v=j.im&&j.im[k];if(typeof v==='string'&&/^data:image\//.test(v))ls(k,v)});
-    bg[g]=null;if(g==='city')cimg=null;ls('donat-game',g);
+    if(g!=='wheel')bg[g]=null;if(g==='city')cimg=null;ls('donat-game',g);
     sane();resetHist();syncUI();if(g==='grid')setMain(sample(),false);loadImages();persist();draw();
     n.textContent='Проєкт відкрито: «'+$('gameSel').selectedOptions[0].textContent+'».'}
   catch(x){n.textContent='Цей файл не вдалося відкрити. Оберіть файл, збережений кнопкою «Зберегти проєкт».'}}
@@ -1182,17 +1329,25 @@ const TOUR=[['.gamepick','Оберіть гру','Тут кілька інтер
  ['#secText','Текст і оформлення','У розділах «Текст на сторіз» та «Оформлення» змінюються заголовок, плашка, кольори й фон.'],
  ['.tplsw','Шаблони фону','Стрілками перемикаються готові фони. Свій фон можна завантажити в розділі «Оформлення».'],
  ['.export','Збереження','Жовта кнопка зберігає готову картинку. Прогрес зберігається в браузері автоматично, а «Зберегти проєкт» дає файл цієї гри для запасної копії чи іншого пристрою.']];
+const TOURW=[['#wlist','Додайте завдання','У кожному рядку впишіть своє завдання. Кількість секторів змінюється полем вище або кнопкою «Додати сектор».'],
+ ['#wPal','Налаштуйте кольори колеса','Оберіть готову палітру або задайте власні кольори для парних і непарних секторів. Колір окремого сектора змінюється в його рядку.'],
+ ['#secText','Оформіть сторіз','Заголовок, підпис, розмір і розміщення тексту, а також розмір тексту на колесі.'],
+ ['#wSpin','Запустіть обертання','Кнопка вибирає випадкове завдання й крутить колесо до нього. Результат запам’ятовується до наступного обертання.'],
+ ['#wFest','Оберіть оголошення результату','Святкове оголошення додає затінення, конфеті й плашку із завданням. Без нього сектор просто підсвічується.'],
+ ['#tPlay','Перегляньте анімацію','Ця кнопка показує те саме, що потрапить у файл. Нею ж можна поставити на паузу.'],
+ ['#wExp','Оберіть формат експорту','Відео з результатом, відео без зупинки або фото з результатом.'],
+ ['.export','Збережіть файл','Жовта кнопка зберігає обраний формат, а «Зберегти проєкт» дає файл для запасної копії чи іншого пристрою.']];
 let tourI=-1;
 function tourShow(i){$$('.tour-on').forEach(e=>e.classList.remove('tour-on'));tourI=i;
-  if(i<0||i>=TOUR.length){$('tour').hidden=true;tourI=-1;return}
-  const t=TOUR[i],el=document.querySelector(t[0]);if(el){if(el.tagName==='DETAILS')el.open=true;el.classList.add('tour-on');try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}}
-  $('tourH').textContent=t[1];$('tourP').textContent=t[2];$('tourN').textContent='Крок '+(i+1)+' з '+TOUR.length;
-  $('tourB').disabled=i===0;$('tourF').textContent=i===TOUR.length-1?'Готово':'Далі';$('tour').hidden=false}
+  const TR=game==='wheel'?TOURW:TOUR;if(i<0||i>=TR.length){$('tour').hidden=true;tourI=-1;return}
+  const t=TR[i],el=document.querySelector(t[0]);if(el){const dd=el.closest('details');if(dd)dd.open=true;el.classList.add('tour-on');try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}}
+  $('tourH').textContent=t[1];$('tourP').textContent=t[2];$('tourN').textContent='Крок '+(i+1)+' з '+TR.length;
+  $('tourB').disabled=i===0;$('tourF').textContent=i===TR.length-1?'Готово':'Далі';$('tour').hidden=false}
 function bindShell(){
   $$('[data-ic]').forEach(e=>{e.innerHTML=svg(e.dataset.ic)});playIcon();
   $('tUndo').addEventListener('click',()=>stepHist(UN,RE,'Останню дію скасовано.'));
   $('tRedo').addEventListener('click',()=>stepHist(RE,UN,'Скасовану дію повторено.'));
-  $('tPlay').addEventListener('click',()=>{if(pv.on){pv.paused=!pv.paused;playIcon()}else record(true)});
+  $('tPlay').addEventListener('click',()=>{if(pv.on){pv.paused=!pv.paused;playIcon()}else{if(game==='wheel')wAnim=wh.xmode==='loop'?'loop':'res';record(true)}});
   let z=1;const setZ=v=>{z=Math.min(2,Math.max(.5,v));$('cvbox').style.setProperty('--z',z);$('zoomV').textContent=Math.round(z*100)+'%'};
   $('zoomOut').addEventListener('click',()=>setZ(z-.25));$('zoomIn').addEventListener('click',()=>setZ(z+.25));
   const fs=on=>{$('pv').classList.toggle('fs',on);$('fsBtn').innerHTML=svg(on?'exit':'full');$('fsBtn').title=on?'Вийти з повноекранного перегляду':'Повноекранний перегляд'};
@@ -1207,6 +1362,169 @@ function bindShell(){
   $('tplPrev').addEventListener('click',()=>tplStep(-1));$('tplNext').addEventListener('click',()=>tplStep(1));
   $('projLoad').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{projOpen(String(rd.result));e.target.value=''};rd.readAsText(f)});
   window.addEventListener('resize',fmtUI);
+  bindWheel();
+}
+// ---- wheel ----
+const TAU=Math.PI*2;
+const WPAL=[{n:'Фірмова',a:'#f6ecc4',b:'#1f6b4a',ta:'#1f6b4a',tb:'#f6ecc4'},{n:'Сонячна',a:'#ffc83d',b:'#fff3cf',ta:'#3a2a00',tb:'#3a2a00'},
+  {n:'Лісова',a:'#0b3d26',b:'#17804d',ta:'#ffffff',tb:'#ffffff'},{n:'Різнокольорова',cyc:['#e63946','#f4a261','#e9c46a','#2a9d8f','#457b9d','#8e5bb5'],ta:'#ffffff'}];
+let wAnim='res',wgeom=null,wfc={},wfcN=0,wTintC=null,wHistKey='';
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function mix(a,b,k){const p=h=>{const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255]},x=p(a),y=p(b);return 'rgb('+x.map((v,i)=>Math.round(v+(y[i]-v)*k)).join(',')+')'}
+function wFit(text,n,r0,r1){
+  const sc=wh.fsz/100,wt=wh.fw,key=[text,n,Math.round(r1),sc,wt].join('|');if(wfc[key])return wfc[key];
+  if(++wfcN>600){wfc={};wfcN=0}
+  const half=Math.PI/n,T=text.toUpperCase().trim(),words=T.split(/\s+/).filter(Boolean);let out=null;
+  if(!words.length)return wfc[key]={mode:'t',lines:[],z:10,lh:12,r:r1,ok:true};
+  if(n<=12){const max=Math.min(44,r1*.1)*sc,min=Math.max(12,max*.42);
+    const lay=z=>{ctx.font=F(wt,z);const lh=z*1.18,r=r1-z*1.25,mw=k=>2*(r-k*lh-lh*.5)*Math.tan(half)*.86,lines=[];let cur='';
+      for(const w of words){const t=cur?cur+' '+w:w;if(cur&&ctx.measureText(t).width>mw(lines.length)){lines.push(cur);cur=w}else cur=t}
+      lines.push(cur);
+      return{mode:'t',lines,z,lh,r,ok:lines.every((l,k)=>ctx.measureText(l).width<=mw(k))&&r-(lines.length-1)*lh-lh*.6>=r0*1.5}};
+    for(let z=max;z>=min;z-=1){const o=lay(z);if(o.ok){out=o;break}}
+    if(!out)out=lay(min)}
+  else{const max=Math.min(36,r1*.085)*sc,min=Math.max(11,max*.42),rout=r1*.95;
+    const lay=(z,two)=>{ctx.font=F(wt,z);let lines=[T];
+      if(two&&words.length>1){let best=null;for(let k=1;k<words.length;k++){const a=words.slice(0,k).join(' '),b=words.slice(k).join(' '),m=Math.max(ctx.measureText(a).width,ctx.measureText(b).width);if(!best||m<best.m)best={m,l:[a,b]}}lines=best.l}
+      const w=Math.max(...lines.map(l=>ctx.measureText(l).width)),lh=z*1.12,rin=rout-w;
+      return{mode:'r',lines,z,lh,ok:rin>=r0*1.5&&lines.length*lh<=2*rin*Math.tan(half)*.9}};
+    for(let z=max;z>=min&&!out;z-=1){let o=lay(z,false);if(o.ok)out=o;else{o=lay(z,true);if(o.ok)out=o}}
+    if(!out)out=lay(min,true)}
+  return wfc[key]=out}
+// what the wheel looks like at this moment: a still frame, the endless loop, or the 10-second run to the fixed result
+function wPhase(){
+  const res=wh.res!=null&&wh.items[wh.res]?wh.res:null,cl=v=>Math.min(1,Math.max(0,v));
+  if(anim===null){const fx=wh.festive&&wh.xmode==='png'&&res!==null;return{rot:wh.rot,res,hi:res!==null?.8:0,fx:fx?1:0,show:res!==null&&wh.resTxt&&!fx?1:0,ct:3}}
+  if(wAnim==='loop')return{rot:wh.rot+anim*TAU*.6,res:null,hi:0,fx:0,show:0,ct:0};
+  const t=anim,u=Math.min(1,t/6),e=1-Math.pow(1-Math.pow(u,1.25),3.2);
+  return{rot:wh.from+wh.turn*e,res,hi:t<6?0:t<7?.45+.55*Math.abs(Math.sin((t-6)*Math.PI*3)):.8,fx:wh.festive?cl((t-7)/.8):0,show:wh.resTxt&&!wh.festive?cl((t-6.3)/.6):0,ct:Math.max(0,t-7)}}
+function wSector(cx,cy,r,a0,a1){ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a0,a1);ctx.closePath()}
+function drawWheel(cx,cy,R,P){
+  const n=wh.items.length,seg=TAU/n,r1=R*.855,r0=R*.135,base=P.rot-Math.PI/2,disc=(r,f)=>{ctx.fillStyle=f;ctx.beginPath();ctx.arc(cx,cy,r,0,TAU);ctx.fill()};
+  ctx.save();ctx.translate(cx,cy+R+40);ctx.scale(1,.1);const sg=ctx.createRadialGradient(0,0,0,0,0,R*.82);sg.addColorStop(0,'rgba(70,20,10,.6)');sg.addColorStop(1,'rgba(70,20,10,0)');
+  ctx.fillStyle=sg;ctx.beginPath();ctx.arc(0,0,R*.82,0,TAU);ctx.fill();ctx.restore();
+  const gold=ctx.createLinearGradient(cx-R,cy-R,cx+R,cy+R);[[0,'#f7e3a1'],[.35,'#c79a3a'],[.6,'#f3d98b'],[1,'#a87a22']].forEach(q=>gold.addColorStop(q[0],q[1]));
+  const gr=ctx.createLinearGradient(cx-R,cy,cx+R,cy);gr.addColorStop(0,'#1f6b4a');gr.addColorStop(1,'#0b3326');
+  disc(R,gold);disc(R*.972,gr);
+  ctx.fillStyle='#f3d98b';for(let j=0;j<24;j++){const a=P.rot+j*TAU/24;ctx.beginPath();ctx.arc(cx+Math.cos(a)*R*.915,cy+Math.sin(a)*R*.915,R*.011,0,TAU);ctx.fill()}
+  disc(R*.876,gold);
+  wh.items.forEach((it,i)=>{ctx.fillStyle=it.c;wSector(cx,cy,r1,base+i*seg,base+(i+1)*seg+.004);ctx.fill()});
+  const dg=ctx.createRadialGradient(cx,cy,r0,cx,cy,r1);dg.addColorStop(0,'rgba(0,0,0,.24)');dg.addColorStop(.35,'rgba(0,0,0,0)');dg.addColorStop(1,'rgba(0,0,0,.07)');disc(r1,dg);
+  if(P.res!==null&&P.hi>0){wSector(cx,cy,r1,base+P.res*seg,base+(P.res+1)*seg);ctx.fillStyle='rgba(255,255,255,'+(.3*P.hi)+')';ctx.fill();
+    ctx.strokeStyle='rgba(255,196,0,'+P.hi+')';ctx.lineWidth=R*.022;ctx.lineJoin='round';ctx.stroke()}
+  const bad=[];
+  wh.items.forEach((it,i)=>{const a=base+(i+.5)*seg;ctx.save();wSector(cx,cy,r1*.985,base+i*seg,base+(i+1)*seg);ctx.clip();ctx.fillStyle=it.tc;ctx.translate(cx,cy);
+    if(wh.lab==='num'){ctx.rotate(a+Math.PI/2);ctx.font=F('900',Math.min(R*.13,2*r1*.74*Math.tan(seg/2)*.5));ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,0,-r1*.74)}
+    else{const f=wFit(it.t,n,r0,r1);if(!f.ok)bad.push(i+1);ctx.font=F(wh.fw,f.z);ctx.textBaseline='middle';
+      if(f.mode==='t'){ctx.rotate(a+Math.PI/2);ctx.textAlign='center';f.lines.forEach((l,k)=>ctx.fillText(l,0,-(f.r-k*f.lh)))}
+      else{ctx.rotate(a);ctx.textAlign='right';const off=(f.lines.length-1)*f.lh/2;f.lines.forEach((l,k)=>ctx.fillText(l,r1*.95,-off+k*f.lh))}}
+    ctx.restore()});
+  const hg=ctx.createRadialGradient(cx-r0*.3,cy-r0*.35,r0*.1,cx,cy,r0);hg.addColorStop(0,'#fff3c4');hg.addColorStop(.6,'#e6bf55');hg.addColorStop(1,'#b8892b');
+  ctx.save();ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=R*.04;disc(r0,hg);ctx.restore();ctx.strokeStyle='#a87a22';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,r0*.93,0,TAU);ctx.stroke();
+  if(logo){if(!wTintC){wTintC=document.createElement('canvas');wTintC.width=wTintC.height=220;const x=wTintC.getContext('2d');x.drawImage(logo,0,0,220,220);x.globalCompositeOperation='source-in';x.fillStyle='#7d5e13';x.fillRect(0,0,220,220)}
+    ctx.drawImage(wTintC,cx-r0*.8,cy-r0*.8,r0*1.6,r0*1.6)}
+  const k=R/480;ctx.save();ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;ctx.fillStyle=wh.ptc;ctx.beginPath();ctx.moveTo(cx-30*k,cy-R-50*k);ctx.lineTo(cx+30*k,cy-R-50*k);ctx.lineTo(cx,cy-R+8*k);ctx.closePath();ctx.fill();ctx.restore();
+  return bad}
+function wConfetti(t,alpha){const r=mkRnd(977),cols=wh.confc==='multi'?['#e63946','#f4a261','#ffd23f','#2a9d8f','#4a90e2','#b565d9']:['#17804d','#8fd16a','#ffc83d','#e0a526','#ffffff','#0b3d26'];
+  for(let i=0;i<120;i++){const side=i%2,dx=Math.pow(r(),1.6)*310,x0=side?W-dx:dx,sp=240+r()*320,ph=r(),sz=11+r()*15,rs=1+r()*4,col=cols[Math.floor(r()*cols.length)],sw=20+r()*40;
+    const yy=((t*sp+ph*(H+200))%(H+200))-100,xx=x0+Math.sin(t*1.6+ph*9)*sw*.5;
+    ctx.save();ctx.globalAlpha=alpha;ctx.translate(xx,yy);ctx.rotate(t*rs+ph*6);ctx.fillStyle=col;ctx.fillRect(-sz/2,-sz*.3,sz,sz*.6);ctx.restore()}}
+function wPlaque(text,a){const t=fitLines(text.toUpperCase(),'900',64,34,700,4);ctx.font=F('900',t.z);
+  const lh=t.z*1.2,w=Math.max(460,Math.max(...t.lines.map(l=>ctx.measureText(l).width))+130),h=t.lines.length*lh+150,x=(W-w)/2,y=H/2-h/2,sc=.86+.14*a;
+  ctx.save();ctx.globalAlpha=a;ctx.translate(W/2,H/2);ctx.scale(sc,sc);ctx.translate(-W/2,-H/2);
+  ctx.shadowColor='rgba(0,0,0,.42)';ctx.shadowBlur=50;ctx.shadowOffsetY=16;const g=ctx.createLinearGradient(0,y,0,y+h);g.addColorStop(0,mix(wh.plc,'#ffffff',.38));g.addColorStop(1,wh.plc);
+  ctx.fillStyle=g;rr(x,y,w,h,40);ctx.fill();ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+  ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=4;rr(x+9,y+9,w-18,h-18,32);ctx.stroke();
+  ctx.fillStyle=wh.pltc;ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.globalAlpha=a*.72;ctx.font=F('800',26);ctx.fillText('ВИПАЛО ЗАВДАННЯ',W/2,y+64);
+  ctx.globalAlpha=a;ctx.font=F('900',t.z);t.lines.forEach((l,i)=>ctx.fillText(l,W/2,y+98+t.z*.8+i*lh));ctx.restore()}
+function drawWheelStory(){
+  const tc=wh.textc,P=wPhase(),n=wh.items.length;FAM=FAM_M;ctx.globalAlpha=1;
+  ctx.fillStyle='#ece8d6';ctx.fillRect(0,0,W,H);
+  const vg=ctx.createRadialGradient(W/2,H*.45,120,W/2,H*.45,H*.75);vg.addColorStop(0,'rgba(255,255,255,.4)');vg.addColorStop(1,'rgba(0,0,0,.07)');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  let y=235;const title=wh.title.trim(),sub=wh.sub.trim(),al=wh.tal==='left'?'left':'center',tx=al==='left'?PADX:W/2,k=wh.tsz/100;
+  ctx.fillStyle=tc;ctx.textAlign=al;ctx.textBaseline='alphabetic';
+  if(title){FAM=FAM_B;const t=fitLines(title,'800',70*k,36*k,W-2*PADX+60,2);ctx.font=F('800',t.z);const lh=t.z*1.12;
+    t.lines.forEach((l,i)=>ctx.fillText(l,tx,y+t.z*.8+i*lh));y+=t.z*.8+(t.lines.length-1)*lh+34;FAM=FAM_M}
+  if(sub){const t=fitLines(sub,'700',34*k,22*k,W-2*PADX+60,2);ctx.font=F('700',t.z);const lh=t.z*1.25;
+    t.lines.forEach((l,i)=>ctx.fillText(l,tx,y+t.z*.8+i*lh));y+=t.z*.8+(t.lines.length-1)*lh+18}
+  let bot=1690;const extra=(wh.extra||'').trim();
+  if(extra){const t=fitLines(extra,'700',32,22,W-2*PADX,2);ctx.font=F('700',t.z);ctx.textAlign='center';ctx.globalAlpha=.9;
+    t.lines.forEach((l,i)=>ctx.fillText(l,W/2,bot-10-(t.lines.length-1-i)*t.z*1.25));ctx.globalAlpha=1;bot-=t.lines.length*t.z*1.25+26}
+  const list=wh.lab==='num'&&wh.showList,rows=Math.ceil(n/2),llh=30;
+  const res=(wh.resTxt?150:0)+(list?rows*llh+24:0)+(wh.wfin?100:0)+(wh.counter?60:0);
+  const top=y+24,ph=56,Rm=Math.max(150,Math.min(486,(bot-res-64-(top+ph))/2)),R=Rm*wh.wsz/100,cx=W/2,cy=top+ph+R+(+wh.wy||0);
+  wgeom={cx,cy,R,rot:P.rot};
+  const bad=drawWheel(cx,cy,R,P);
+  let yy=cy+R+64;ctx.fillStyle=tc;ctx.textAlign='center';ctx.textBaseline='alphabetic';
+  if(wh.resTxt){if(P.show>0&&P.res!==null){ctx.globalAlpha=P.show*.75;ctx.font=F('700',26);ctx.fillText('ВИПАЛО:',W/2,yy+28);
+      ctx.globalAlpha=P.show;const t=fitLines(wh.items[P.res].t.toUpperCase(),'900',46,28,W-2*PADX,2);ctx.font=F('900',t.z);t.lines.forEach((l,i)=>ctx.fillText(l,W/2,yy+82+i*t.z*1.15));ctx.globalAlpha=1}
+    yy+=150}
+  if(list){ctx.font=F('700',21);ctx.textAlign='left';const cw=(W-150)/2;
+    wh.items.forEach((it,i)=>{let s=(i+1)+'. '+it.t;while(s.length>4&&ctx.measureText(s).width>cw-16)s=s.slice(0,-2)+'…';ctx.fillText(s,75+(i>=rows?cw:0),yy+24+(i%rows)*llh)});
+    ctx.textAlign='center';yy+=rows*llh+24}
+  if(wh.wfin){const g=Math.max(1,+wh.wgoal||1),v=Math.max(0,+wh.wraised||0),q=Math.min(1,v/g),bx=PADX,bw=W-2*PADX;
+    box(bx,yy+18,bw,24,12,'rgba(0,0,0,.12)');if(q>0)box(bx,yy+18,Math.max(24,bw*q),24,12,'#1f6b4a');
+    ctx.fillStyle=tc;ctx.font=F('800',30);ctx.fillText('ЗІБРАНО '+v.toLocaleString('uk-UA')+' / '+g.toLocaleString('uk-UA')+' ГРН',W/2,yy+82);yy+=100}
+  if(wh.counter){ctx.fillStyle=tc;ctx.font=F('800',36);ctx.fillText('ОБЕРТАНЬ: '+wh.hist.length,W/2,yy+44)}
+  if(P.fx>0&&P.res!==null){ctx.fillStyle='rgba(8,20,14,'+(P.fx*wh.dim/100)+')';ctx.fillRect(0,0,W,H);
+    if(wh.conf)wConfetti(P.ct,P.fx);wPlaque(wh.items[P.res].t,P.fx)}
+  $('stOpen').textContent=wh.hist.length;$('stSum').textContent=wh.wfin?(+wh.wraised||0).toLocaleString('uk-UA')+' грн':'—';
+  progUI(wh.wfin?Math.min(1,(+wh.wraised||0)/Math.max(1,+wh.wgoal||1)):null);
+  if(anim===null)wUI(bad)}
+function wUI(bad){
+  const w=$('wWarn');w.hidden=!bad.length;if(bad.length)w.textContent='Текст не вміщується в секторах: '+bad.join(', ')+'. Скоротіть його, зменште розмір тексту або перейдіть на номери.';
+  $('wSpin').textContent=wh.res!=null?'Крутити знову':'Крутити колесо';$('wUndo').disabled=!UN.wheel.length;$('wClear').disabled=!wh.hist.length;
+  $('wAddDon').textContent='Додати донат до зібраного (+'+(+wh.wprice||0).toLocaleString('uk-UA')+' грн)';
+  const key=wh.hist.length+'|'+(wh.hist.length?wh.hist[wh.hist.length-1].t:'');
+  if(key!==wHistKey){wHistKey=key;const o=$('whist');o.innerHTML='';
+    if(!wh.hist.length){const li=document.createElement('li');li.textContent='Історія порожня.';li.style.listStyle='none';o.appendChild(li)}
+    wh.hist.forEach(h=>{const li=document.createElement('li');li.textContent=(h.i>=0?'№'+(h.i+1)+' ':'')+h.t;o.appendChild(li)});o.scrollTop=o.scrollHeight}}
+function wAlign(){if(wh.res==null||!wh.items[wh.res]){wh.res=null;return}const seg=TAU/wh.items.length;wh.rot=((-(wh.res+.5)*seg)%TAU+TAU)%TAU;wh.from=wh.rot;wh.turn=TAU*6}
+function wRemap(f){wh.hist.forEach(h=>{h.i=f(h.i)});if(wh.res!=null){const r=f(wh.res);wh.res=r<0?null:r}wAlign()}
+function wNew(i){const p=wh.items[i-2];return{t:'Завдання '+(i+1),c:p?p.c:i%2?wh.wcB:wh.wcA,tc:p?p.tc:'#ffffff'}}
+function wResize(){const n=wh.wnum;while(wh.items.length<n)wh.items.push(wNew(wh.items.length));wh.items.length=n;wRemap(i=>i>=n?-1:i)}
+function wDel(i){if(wh.items.length<=5){say('Має лишитися щонайменше 5 секторів.');return}wh.items.splice(i,1);wh.wnum=wh.items.length;$('wnum').value=wh.wnum;
+  wRemap(v=>v===i?-1:v>i?v-1:v);wRenderList();update()}
+function wRenderList(){const L=$('wlist');L.innerHTML='';
+  wh.items.forEach((it,i)=>{const r=document.createElement('div');r.className='wrow';
+    r.innerHTML='<b>'+(i+1)+'</b><input type="text" maxlength="60" aria-label="Завдання '+(i+1)+'"><input type="color" title="Колір сектора" aria-label="Колір сектора '+(i+1)+'"><input type="color" title="Колір тексту" aria-label="Колір тексту сектора '+(i+1)+'"><button type="button" class="ib" title="Видалити сектор" aria-label="Видалити сектор '+(i+1)+'">'+svg('trash')+'</button>';
+    const q=r.querySelectorAll('input');q[0].value=it.t;q[1].value=it.c;q[2].value=it.tc;
+    q[0].addEventListener('input',()=>{it.t=q[0].value;persist();draw()});
+    q[1].addEventListener('input',()=>{it.c=q[1].value;persist();draw()});
+    q[2].addEventListener('input',()=>{it.tc=q[2].value;persist();draw()});
+    r.querySelector('button').addEventListener('click',()=>wDel(i));L.appendChild(r)});
+  $('wcAh').value=wh.wcA;$('wcBh').value=wh.wcB;
+  const a=wh.items[0],b=wh.items[1];if(a&&b){$('qcO').value=a.c;$('qcE').value=b.c;$('qtO').value=a.tc;$('qtE').value=b.tc}}
+function wActive(){const used=new Set(wh.hist.map(h=>h.i));return wh.items.map((_,i)=>i).filter(i=>!wh.excl||!used.has(i))}
+function wRand(n){try{const a=new Uint32Array(1),lim=Math.floor(4294967296/n)*n;do{crypto.getRandomValues(a)}while(a[0]>=lim);return a[0]%n}catch(e){return Math.floor(Math.random()*n)}}
+// the result is chosen first (every active sector equally likely); the animation only travels to it
+function wSpin(){if(busy)return;const act=wActive();
+  if(!act.length){say('Усі завдання вже випадали. Очистьте історію або дозвольте повтори.');return}
+  const k=act[wRand(act.length)],seg=TAU/wh.items.length,off=(Math.random()-.5)*.6,from=((wh.rot%TAU)+TAU)%TAU,d=(((-(k+.5+off)*seg)-from)%TAU+TAU)%TAU;
+  wh.from=from;wh.turn=TAU*6+d;wh.rot=((from+wh.turn)%TAU+TAU)%TAU;wh.res=k;wh.hist.push({i:k,t:wh.items[k].t});
+  wAnim='res';anim=0;update();say('Колесо крутиться…');
+  record(true).then(()=>say('Випало: <b>№'+(k+1)+' '+esc(wh.items[k]?wh.items[k].t:'')+'</b>'))}
+function wClick(p){const g=wgeom;if(!g||Math.hypot(p.x-g.cx,p.y-g.cy)>g.R)return;const n=wh.items.length;
+  const i=Math.floor((((Math.atan2(p.y-g.cy,p.x-g.cx)-(g.rot-Math.PI/2))%TAU+TAU)%TAU)/(TAU/n))%n,row=$('wlist').children[i];
+  $('secGame').open=true;$$('.wrow.hit').forEach(e=>e.classList.remove('hit'));if(row){row.classList.add('hit');try{row.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}row.querySelector('input').focus({preventScroll:true})}}
+function bindWheel(){
+  WPAL.forEach(pl=>{const b=document.createElement('button');b.type='button';b.className='btn swb';const cs=pl.cyc||[pl.a,pl.b];
+    b.innerHTML='<i>'+cs.map(c=>'<u style="background:'+c+'"></u>').join('')+'</i>'+pl.n;
+    b.addEventListener('click',()=>{wh.items.forEach((it,i)=>{if(pl.cyc){it.c=pl.cyc[i%pl.cyc.length];it.tc=pl.ta}else{it.c=i%2?pl.b:pl.a;it.tc=i%2?pl.tb:pl.ta}});
+      if(!pl.cyc){wh.wcA=pl.a;wh.wcB=pl.b;$('wcA').value=pl.a;$('wcB').value=pl.b}wRenderList();update()});$('wPal').appendChild(b)});
+  const paint=(par,col)=>{wh.items.forEach((it,i)=>{if(i%2===par){it.c=col;it.tc=lum(col)>150?'#1f3a2c':'#fdf6dc'}});wRenderList();update()};
+  $('wOdd').addEventListener('click',()=>paint(0,wh.wcA));$('wEven').addEventListener('click',()=>paint(1,wh.wcB));
+  $('wTcAll').addEventListener('click',()=>{wh.items.forEach(it=>{it.tc=wh.wtc});wRenderList();update()});
+  [['wcA','wcAh'],['wcB','wcBh']].forEach(q=>{$(q[0]).addEventListener('input',()=>{$(q[1]).value=wh[q[0]]});
+    $(q[1]).addEventListener('input',e=>{let v=e.target.value.trim();if(v&&v[0]!=='#')v='#'+v;if(/^#[0-9a-f]{6}$/i.test(v)){wh[q[0]]=v.toLowerCase();$(q[0]).value=wh[q[0]];persist()}})});
+  [['qcO',0,'c'],['qcE',1,'c'],['qtO',0,'tc'],['qtE',1,'tc']].forEach(q=>$(q[0]).addEventListener('input',e=>{const v=e.target.value;
+    wh.items.forEach((it,i)=>{if(i%2===q[1])it[q[2]]=v});$$('#wlist .wrow').forEach((r,i)=>{if(i%2===q[1])r.querySelectorAll('input')[q[2]==='c'?1:2].value=v});persist();draw()}));
+  $('wAdd').addEventListener('click',()=>{if(wh.items.length>=25){say('Секторів уже максимум: 25.');return}wh.items.push(wNew(wh.items.length));wh.wnum=wh.items.length;$('wnum').value=wh.wnum;wAlign();wRenderList();update()});
+  $('wSpin').addEventListener('click',wSpin);
+  $('wUndo').addEventListener('click',()=>stepHist(UN,RE,'Останній результат скасовано.'));
+  arm($('wClear'),()=>wh.hist.length>0,()=>{wh.hist=[];wh.res=null;say('Історію очищено.');update()});
+  $('wAddDon').addEventListener('click',()=>{wh.wraised=(+wh.wraised||0)+(+wh.wprice||0);$('wraised').value=wh.wraised;update()});
+  $('projCopy').addEventListener('click',()=>projSave('-kopiya-'+new Date().toISOString().slice(0,10)));
 }
 
 load();sane();bind();resetHist();syncUI();
